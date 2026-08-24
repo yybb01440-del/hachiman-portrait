@@ -319,8 +319,11 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 /* 兜底：不依赖任何 JS。JS 正常时 .in 早已生效，这段动画等于从 1 补间到 1，无感；
    JS 因任何原因没跑到（后台标签页、脚本报错、观察器不触发），2.5s 后也会自行显形。 */
 @keyframes revealFallback{to{opacity:1;transform:none}}
-.reveal{animation:revealFallback .95s cubic-bezier(.16,1,.3,1) 2.5s forwards;
-  opacity:0;transform:translateY(20px);
+.reveal:not(.in){animation:revealFallback .95s cubic-bezier(.16,1,.3,1) 2.5s forwards}
+.reveal{opacity:0;transform:translateY(20px);
+  /* 动画只挂在未揭示态上：一旦 JS 加了 .in，动画立即不再匹配，
+     由 .reveal.in 接管。否则动画优先级高于普通规则，会把 opacity 钉死在 0。 */
+
   transition:opacity .95s cubic-bezier(.16,1,.3,1),transform .95s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 
