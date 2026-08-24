@@ -424,6 +424,26 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 #loader .skip:hover,#loader .skip:focus-visible{color:#C9C2B7}
 #loader .skip:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
 @media(prefers-reduced-motion:reduce){#loader,#loader .seam i,#loader .skip{transition-duration:.01ms!important}}
+
+/* ── 显示异常时的刷新入口 ──
+   条件触发：正常访客永远看不到它。只有检测到确实有图没加载出来才出现。
+   出现前页面会先自己重试一次，能自愈就不打扰人。 */
+#reloadTip{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);
+  z-index:9998;display:flex;align-items:center;gap:14px;
+  padding:11px 14px 11px 18px;background:rgba(15,16,15,.94);
+  border:1px solid rgba(168,84,54,.55);
+  font-family:var(--sans),sans-serif;font-size:12.5px;letter-spacing:.06em;color:#D8D1C6;
+  opacity:0;transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1)}
+#reloadTip.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#reloadTip button{font:inherit;letter-spacing:.14em;color:#0F100F;background:#A85436;
+  border:0;padding:7px 14px;cursor:pointer;
+  transition:background .3s cubic-bezier(.16,1,.3,1)}
+#reloadTip button:hover,#reloadTip button:focus-visible{background:#C4694A}
+#reloadTip button:focus-visible{outline:2px solid #E4DFD5;outline-offset:2px}
+#reloadTip .x{background:none;color:#8A8278;padding:7px 6px;letter-spacing:0}
+#reloadTip .x:hover,#reloadTip .x:focus-visible{background:none;color:#D8D1C6}
+@media(max-width:520px){#reloadTip{left:12px;right:12px;bottom:14px;transform:translateY(10px)}
+  #reloadTip.on{transform:translateY(0)}}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -1458,6 +1478,45 @@ else {
   stick.addEventListener('pointerleave', () => { mx = my = -1e5; if (!tick) tick = requestAnimationFrame(paint) });
   addEventListener('resize', measure);
   requestAnimationFrame(() => { measure(); if (!base.length || !base[0][0]) measure() });
+})();
+
+/* ── 显示异常自检 ──
+   两步走：先自己重试，修不好才提示，正常访客一次都见不到。 */
+(function () {
+  function brokenImgs() {
+    return [].slice.call(document.images).filter(function (i) {
+      return !i.complete || !i.naturalWidth;
+    });
+  }
+  /* 第一步（3s）：把没出来的图换个地址重新请求一次，不惊动用户。
+     加 retry 参数是为了绕开可能已经失败并被缓存的那次请求。 */
+  setTimeout(function () {
+    brokenImgs().forEach(function (i) {
+      var u = i.src.split('#')[0];
+      i.src = u + (u.indexOf('?') < 0 ? '?' : '&') + 'retry=' + Date.now();
+    });
+  }, 3000);
+
+  /* 第二步（8s）：确实还有图没出来，才给一个刷新入口。 */
+  setTimeout(function () {
+    if (!brokenImgs().length) return;
+    var tip = document.createElement('div');
+    tip.id = 'reloadTip';
+    tip.setAttribute('role', 'status');
+    var msg = document.createElement('span');
+    msg.textContent = '部分图片没有正常显示';
+    var go = document.createElement('button');
+    go.type = 'button'; go.textContent = '刷新页面';
+    go.addEventListener('click', function () { location.reload(); });
+    var no = document.createElement('button');
+    no.type = 'button'; no.className = 'x'; no.textContent = '忽略';
+    no.setAttribute('aria-label', '关闭提示');
+    no.addEventListener('click', function () { tip.remove(); });
+    tip.appendChild(msg); tip.appendChild(go); tip.appendChild(no);
+    document.body.appendChild(tip);
+    requestAnimationFrame(function () { tip.classList.add('on') });
+    setTimeout(function () { tip.classList.add('on') }, 60);  // rAF 被节流时的退路
+  }, 8000);
 })();
 </script>
 </body>
