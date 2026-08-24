@@ -316,7 +316,11 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   font-size:clamp(21px,3.3vw,40px);line-height:1.62;letter-spacing:-.04em}
 @media(max-width:860px){.swap{height:200svh}.crack{height:135svh}}
 
-.reveal{opacity:0;transform:translateY(20px);
+/* 兜底：不依赖任何 JS。JS 正常时 .in 早已生效，这段动画等于从 1 补间到 1，无感；
+   JS 因任何原因没跑到（后台标签页、脚本报错、观察器不触发），2.5s 后也会自行显形。 */
+@keyframes revealFallback{to{opacity:1;transform:none}}
+.reveal{animation:revealFallback .95s cubic-bezier(.16,1,.3,1) 2.5s forwards;
+  opacity:0;transform:translateY(20px);
   transition:opacity .95s cubic-bezier(.16,1,.3,1),transform .95s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 
@@ -374,7 +378,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   .hero{margin-top:0}
   .prologue-media video{opacity:1!important;filter:saturate(.72) contrast(1.06) brightness(.82)!important}
   .prologue-after{opacity:1;transform:none}
-  .reveal{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none;animation:none!important}
   .selfstudy-grid{display:block}
   .selfstudy-anchor{position:relative;top:auto;padding:90px 0 20px}
   .selfstudy-words{display:none}
@@ -671,7 +675,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
       </div>
       <p class="selfstudy-count"><b id="selfNow">01</b> / 03</p>
       <figure class="selfstudy-still reveal">
-        <div class="still-in"><img src="./assets/img/first-self-destruction.webp" alt="比企谷八幡被人逼到墙边" width="1400" height="910" loading="lazy"></div>
+        <div class="still-in"><img src="./assets/img/first-self-destruction.webp" alt="比企谷八幡被人逼到墙边" width="1400" height="910"></div>
         <figcaption>事情还没结束，他已经站到了最难看的位置。</figcaption>
       </figure>
     </aside>
@@ -704,15 +708,15 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
     <div class="genuine-grid">
       <div class="genuine-visual" aria-hidden="true">
         <figure class="genuine-frame" data-genuine-frame="0">
-          <img src="./assets/img/club-room.webp" alt="" width="1400" height="910" loading="lazy">
+          <img src="./assets/img/club-room.webp" alt="" width="1400" height="910">
           <figcaption class="cap">RELATION / 01 · 三个人</figcaption>
         </figure>
         <figure class="genuine-frame" data-genuine-frame="1">
-          <img src="./assets/img/yui-self-destruction.webp" alt="" width="1400" height="910" loading="lazy">
+          <img src="./assets/img/yui-self-destruction.webp" alt="" width="1400" height="910">
           <figcaption class="cap">RELATION / 02 · 结衣的追问</figcaption>
         </figure>
         <figure class="genuine-frame" data-genuine-frame="2">
-          <img src="./assets/img/hachiman-yui-bamboo.webp" alt="" width="1400" height="910" loading="lazy">
+          <img src="./assets/img/hachiman-yui-bamboo.webp" alt="" width="1400" height="910">
           <figcaption class="cap">RELATION / 03 · 真物</figcaption>
         </figure>
       </div>
