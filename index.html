@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>比企谷八幡：孤傲、清醒与真物</title>
+<meta name="description" content="他是谁，他如何看待世界，以及我为什么在高中时那么喜欢他。">
+<!-- favicon：墨底上的一道锈色裂缝，取自本页 .crack 那一屏。内联 data URI，不额外发请求。 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230F100F'/%3E%3Crect x='4' y='15' width='24' height='2.6' fill='%23A85436'/%3E%3C/svg%3E">
+<link rel="preload" as="font" type="font/woff2" href="./assets/fonts/serifsc-900.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="./assets/fonts/serifsc-300.woff2" crossorigin>
+<link rel="preload" as="image" href="./assets/img/prologue-youth-is-a-lie.webp">
+<link rel="preload" as="image" href="./assets/img/hachiman.webp">
+
+<style>
+@font-face{font-family:'SerifSC';font-style:normal;font-weight:300;font-display:swap;src:url('./assets/fonts/serifsc-300.woff2') format('woff2')}
+@font-face{font-family:'SerifSC';font-style:normal;font-weight:900;font-display:swap;src:url('./assets/fonts/serifsc-900.woff2') format('woff2')}
+@font-face{font-family:'SansSC';font-style:normal;font-weight:400;font-display:swap;src:url('./assets/fonts/sanssc-400.woff2') format('woff2')}
+@font-face{font-family:'Mincho';font-style:normal;font-weight:400;font-display:swap;src:url('./assets/fonts/mincho-400.woff2') format('woff2')}
+
+/* ══════════════════════════════════════════════════
+   两个世界：壳（深黑）／ 壳底下（纸色）
+   中间那个「剥开」的交互场景是分界线。
+   材质：铁。唯一强调色：锈。情绪词：盔甲底下的体温。
+   ══════════════════════════════════════════════════ */
+:root{
+  --ink:#0F100F;        /* 壳 */
+  --ink-2:#171817;
+  --paper:#EDE7DC;      /* 壳底下 */
+  --paper-2:#E3DBCD;
+  --rust:#A85436;
+  --yukino:#506984;     /* 卸甲后：雪乃的灰蓝墨 */
+  --hachiman:#506B57;   /* 卸甲后：八幡的暗苔绿 */
+  --yui:#8F5A27;        /* 卸甲后：结衣的琥珀橙 */
+  --serif:'SerifSC',serif; --sans:'SansSC',-apple-system,sans-serif; --mincho:'Mincho','SerifSC',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden}
+img{display:block;max-width:100%;height:auto}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+/* 世界 A：壳 */
+.dark{background:var(--ink);color:#E4DFD5;--dim:#9A9186;--faint:#7C746A;--rule:rgba(228,223,213,.13)}
+/* 世界 B：壳底下 */
+.light{background:var(--paper);color:#1E1C19;--dim:#5C554C;--faint:#8A8177;--rule:rgba(30,28,25,.14)}
+.light .c-yukino{color:var(--yukino)}
+.light .c-hachiman{color:var(--hachiman)}
+.light .c-yui{color:var(--yui)}
+
+section{position:relative}
+.pad{padding:150px 32px}
+.col{max-width:660px;margin:0 auto}
+.col p{font-size:clamp(18px,1.35vw,20px);line-height:2;color:var(--dim);margin-bottom:26px}
+.col p:last-child{margin-bottom:0}
+.col b{font-weight:300;color:inherit}
+/* 正文不是同一种声部：先靠近人物，再平静地分析，最后给自白留一个停顿。 */
+.col p.lead{max-width:24em;font-size:clamp(22px,1.75vw,26px);line-height:1.74;color:inherit;margin-bottom:36px}
+.col p.confession{max-width:29em;font-size:clamp(19px,1.47vw,22px);line-height:1.9;color:inherit;
+  margin:38px 0 32px;padding-left:18px;border-left:1px solid var(--rule)}
+.col p.lead.confession{font-size:clamp(22px,1.75vw,26px);line-height:1.74}
+.col p.turn{max-width:28em;font-size:clamp(19px,1.5vw,22px);line-height:1.88;color:inherit;margin-top:36px}
+.col p.turn b{font-weight:900}
+
+/* ── 活的章节指示器 ── */
+.rail{position:fixed;top:0;left:0;right:0;z-index:80;padding:22px 30px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--sans);font-size:12px;letter-spacing:.2em;pointer-events:none;
+  color:#8A8278;transition:color .55s ease}
+.rail .now{color:#C9C2B7;transition:color .55s ease}
+.rail .now i{font-style:normal;color:#C86B48;transition:color .55s ease}
+/* 纸色世界里反过来 —— difference 混合会把锈色翻成蓝，多一个强调色，也读不清 */
+.rail.on-light{color:#6E655B}
+.rail.on-light .now{color:#2A2723}
+.rail.on-light .now i{color:var(--rust)}
+.bar{position:fixed;left:0;top:0;height:2px;width:0;z-index:90;background:var(--rust);opacity:.8;transition:width .1s cubic-bezier(.16,1,.3,1)}
+
+/* ── 原片序幕：末帧像一张铁皮页向上收起，露出人物档案 ── */
+.prologue{height:200svh;min-height:1120px;overflow:visible;position:relative;z-index:2;background:transparent}
+.prologue-stage{--prologue-open:0;position:sticky;top:0;height:100svh;min-height:560px;overflow:hidden;background:var(--ink);color:#E4DFD5;isolation:isolate;clip-path:inset(0 0 calc(var(--prologue-open) * 100%) 0);will-change:clip-path}
+.prologue-media{position:absolute;inset:0;background:var(--ink);opacity:0;transition:opacity 1.35s cubic-bezier(.16,1,.3,1)}
+.prologue-stage.is-started .prologue-media{opacity:1}
+.prologue-media video{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.72) contrast(1.06) brightness(.82);transition:opacity .95s cubic-bezier(.16,1,.3,1),filter 1.1s cubic-bezier(.16,1,.3,1)}
+.prologue-media::before{content:'';position:absolute;inset:0;z-index:1;background:var(--rust);mix-blend-mode:color;opacity:.18;pointer-events:none}
+.prologue-media::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 1px 1px,rgba(0,0,0,.4) .7px,transparent .8px) 0 0/3px 3px,linear-gradient(180deg,rgba(15,16,15,.34),transparent 26%,transparent 72%,rgba(15,16,15,.38))}
+.prologue.is-ended .prologue-media video{opacity:1;filter:saturate(.72) contrast(1.06) brightness(.82)}
+.prologue-sound{position:absolute;z-index:4;top:50%;left:50%;width:64px;height:64px;transform:translate(-50%,-50%) scale(.84);appearance:none;border:1px solid rgba(228,223,213,.72);border-radius:50%;padding:0;background:transparent;color:#E4DFD5;font-family:var(--sans);font-size:18px;line-height:1;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .7s cubic-bezier(.16,1,.3,1),color .45s ease,border-color .45s ease,background .45s ease,transform .7s cubic-bezier(.16,1,.3,1)}
+.prologue-stage.is-ready .prologue-sound{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.prologue-stage.is-started .prologue-sound{opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.86)}
+.prologue-sound span{display:block;margin-left:3px}
+.prologue-sound:hover,.prologue-sound:focus-visible,.prologue-sound.is-playing{color:#F0EBE1;border-color:#D2795A;background:rgba(168,84,54,.13);transform:translate(-50%,-50%) scale(1.08)}
+.prologue-sound:focus-visible{outline:2px solid var(--rust);outline-offset:6px}
+.prologue-invite{position:absolute;z-index:4;top:calc(50% + 58px);left:24px;right:24px;text-align:center;font-family:var(--serif);font-weight:300;font-size:clamp(15px,1.2vw,18px);letter-spacing:.08em;color:#AFA69A;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.prologue-stage.is-ready .prologue-invite{opacity:1;transform:none}
+.prologue-stage.is-started .prologue-invite{opacity:0;transform:translateY(-8px)}
+.prologue-after{position:absolute;z-index:4;left:24px;right:24px;bottom:36px;text-align:center;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:#A49B90;opacity:0;transform:translateY(16px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.prologue.is-ended .prologue-after{opacity:1;transform:none}
+.prologue.is-advancing .prologue-after{opacity:0;transform:translateY(10px);pointer-events:none}
+.voice-master{position:fixed;right:18px;bottom:18px;z-index:92;width:34px;height:34px;display:grid;place-items:center;
+  appearance:none;border:1px solid rgba(228,223,213,.24);border-radius:50%;padding:0;background:rgba(15,16,15,.22);color:#B9B0A4;
+  font-family:var(--mincho);font-size:16px;line-height:1;cursor:pointer;opacity:.58;transition:color .45s ease,border-color .45s ease,background .45s ease,opacity .45s ease,transform .45s cubic-bezier(.16,1,.3,1)}
+.voice-master:hover,.voice-master:focus-visible{opacity:1;transform:scale(1.08);color:#E4DFD5;border-color:rgba(228,223,213,.68);background:rgba(15,16,15,.56)}
+.voice-master.is-on{opacity:.9;color:#E4DFD5;border-color:var(--rust);background:rgba(15,16,15,.48)}
+.voice-master.on-light{color:#655D54;border-color:rgba(30,28,25,.2);background:rgba(237,231,220,.34)}
+.voice-master.on-light:hover,.voice-master.on-light:focus-visible{color:#2A2723;border-color:rgba(30,28,25,.54);background:rgba(237,231,220,.82)}
+.voice-master.on-light.is-on{color:var(--hachiman);border-color:var(--hachiman);background:rgba(237,231,220,.76)}
+.voice-master:focus-visible{outline:2px solid var(--rust);outline-offset:3px}
+.is-intro-idle .rail,.is-intro-idle .bar,.is-intro-idle .voice-master{opacity:0;visibility:hidden}
+
+/* ── 00 首屏：先藏在序幕底下，等铁皮页向上收起 ── */
+.hero{min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;position:relative;z-index:1;margin-top:-155svh}
+.hero-img{position:absolute;inset:0;z-index:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;object-position:64% 26%;
+  filter:grayscale(1) contrast(1.16) brightness(1.02)}
+.hero-img::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:var(--rust);mix-blend-mode:color;opacity:.4}
+.hero-img::after{content:'';position:absolute;inset:0;z-index:2;
+  background:
+    radial-gradient(circle at 1px 1px,rgba(0,0,0,.45) .7px,transparent .8px) 0 0/3px 3px,
+    linear-gradient(180deg,rgba(15,16,15,.7) 0%,rgba(15,16,15,.26) 30%,rgba(15,16,15,.94) 84%,var(--ink) 100%)}
+.hero-in{position:relative;z-index:3;padding:0 32px 96px 96px;max-width:1100px;margin:0 auto;width:100%}
+.vline{position:absolute;left:38px;top:0;bottom:0;z-index:3;display:flex;align-items:center;
+  writing-mode:vertical-rl;font-family:var(--mincho);font-size:13px;letter-spacing:.42em;
+  color:rgba(226,220,210,.34);pointer-events:none;user-select:none}
+@media(max-width:900px){.vline{display:none}}
+.kicker{font-family:var(--sans);font-size:13px;letter-spacing:.28em;color:#A29A8E;margin-bottom:26px}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,5vw,70px);
+  line-height:1.26;letter-spacing:-.045em;color:#F0EBE1;max-width:14em}
+h1 .r{color:#D2795A}
+.cue{font-family:var(--sans);font-size:13px;letter-spacing:.23em;color:#8A8278;margin-top:48px}
+
+/* ── 章节眉题 ── */
+.eyeb{display:flex;align-items:center;gap:14px;font-family:var(--sans);font-size:13px;
+  letter-spacing:.26em;color:var(--faint);margin-bottom:30px}
+.col p.eyeb,.longform p.eyeb{font-size:14px;line-height:1.55}
+.eyeb::before{content:'';width:38px;height:1px;background:var(--rust);opacity:.7}
+.eyeb em{font-style:italic;font-family:var(--serif);letter-spacing:.06em;opacity:.8}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
+  line-height:1.26;letter-spacing:-.048em;margin-bottom:34px}
+
+/* ── 双栏：图 + 文 ── */
+.split{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1fr);gap:clamp(32px,5vw,78px);
+  align-items:start;max-width:1120px;margin:0 auto}
+.split.flip{grid-template-columns:minmax(0,1fr) minmax(0,.82fr)}
+.split.flip .fig{order:2}
+.split .col{padding-top:6px}
+.fig{position:relative;overflow:hidden}
+/* 长文不该把图钉在第一行：图随阅读停在视口里，直到这段文字结束。 */
+@media(min-width:861px){.split .fig{position:sticky;top:clamp(96px,13svh,150px);align-self:start}}
+.fig-in{position:relative;overflow:hidden;background:#0B0C0B}
+.fig img{width:100%;aspect-ratio:5/4;object-fit:cover;display:block}
+/* 壳世界：去色 + 拉对比 + 锈色染色 + 网点 —— 低分辨率成为"印刷"的一部分 */
+.dark .fig img{filter:grayscale(1) contrast(1.12) brightness(1.28)}
+.dark .fig-in::after{content:'';position:absolute;inset:0;background:var(--rust);
+  mix-blend-mode:color;opacity:.5;pointer-events:none}
+.dark .fig-in::before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.42;
+  background-image:radial-gradient(circle at 1px 1px,rgba(0,0,0,.55) .7px,transparent .8px);
+  background-size:3px 3px}
+/* 壳底下：真彩色 */
+.light .fig img{filter:saturate(1.06) contrast(1.03)}
+.fig figcaption{font-family:var(--sans);font-size:12px;line-height:1.6;letter-spacing:.16em;color:var(--faint);margin-top:12px}
+
+/* ── 人物档案：字段，不做产品卡片 ── */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:34px 0 38px;border-top:1px solid var(--rule)}
+.fact{padding:18px 18px 19px 0;border-bottom:1px solid var(--rule)}
+.fact:nth-child(odd){border-right:1px solid var(--rule)}
+.fact:nth-child(even){padding-left:18px}
+.fact dt{font-family:var(--sans);font-size:12px;letter-spacing:.2em;color:var(--faint);margin-bottom:8px}
+.fact dd{font-family:var(--serif);font-weight:900;font-size:19px;line-height:1.55;color:inherit}
+.profile-fig img{aspect-ratio:4/5;object-position:28% center}
+
+/* ── 落点句 ── */
+.land{font-family:var(--serif);font-weight:900;font-size:clamp(20px,2.6vw,27px);
+  line-height:1.68;letter-spacing:-.028em;color:inherit;margin-top:40px;
+  padding-left:20px;border-left:2px solid var(--rust)}
+
+/* ── 居中宣言 ── */
+.manifesto{min-height:92svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:110px 32px}
+.manifesto p{font-family:var(--serif);font-weight:900;font-size:clamp(32px,6.4vw,86px);
+  line-height:1.28;letter-spacing:-.05em;max-width:min(13em,86vw)}
+.manifesto .r{color:var(--rust)}
+
+/* ── 剥开：概念即交互 ── */
+.peel{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:110px 32px;text-align:center}
+.peel h2{margin-bottom:14px}
+.peel .hint{font-family:var(--sans);font-size:14px;line-height:1.8;letter-spacing:.12em;color:var(--faint);margin-bottom:34px}
+.canvas-wrap{position:relative;width:min(620px,86vw);aspect-ratio:3/2;
+  border:1px solid var(--rule);cursor:crosshair;touch-action:none}
+.canvas-wrap:focus-visible{outline:2px solid var(--rust);outline-offset:7px}
+.canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.meter{position:absolute;top:12px;right:14px;z-index:3;font-family:var(--sans);
+  font-size:13px;letter-spacing:.14em;color:#B9B0A4;background:rgba(15,16,15,.6);padding:7px 11px}
+.meter b{font-family:var(--serif);font-weight:900;font-size:19px;color:#E0937A;letter-spacing:0}
+.peel .after{font-family:var(--serif);font-weight:900;font-size:clamp(19px,2.5vw,26px);
+  line-height:1.7;margin-top:38px;opacity:0;transition:opacity 1.1s ease-out;max-width:20em}
+.peel .after.on{opacity:1}
+
+/* ── 长文排版（壳底下的世界）── */
+.longform{max-width:660px;margin:0 auto}
+.longform p{font-size:clamp(18px,1.4vw,20px);line-height:2.1;color:var(--dim);margin-bottom:26px;text-indent:2em}
+.longform p.noind{text-indent:0}
+.longform mark{background:rgba(168,84,54,.16);color:inherit;padding:0 2px}
+.longform .aside{font-style:italic;color:var(--faint);border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);padding:22px 0;margin:34px 0;text-indent:0}
+.dots{display:flex;gap:14px;justify-content:center;margin:52px 0}
+.dots i{width:5px;height:5px;background:var(--rust);opacity:.5;transform:rotate(45deg)}
+
+/* ── 06 自爆：同一个动作，被连续改写为解决／控制／暴露 ── */
+.selfstudy{padding:0 32px;background:var(--paper)}
+.selfstudy-grid{display:grid;grid-template-columns:minmax(280px,.72fr) minmax(0,1fr);gap:clamp(54px,8vw,120px);max-width:1120px;margin:0 auto}
+.selfstudy-anchor{position:sticky;top:20svh;height:max-content;padding:0 0 90px}
+.selfstudy-anchor .eyeb{margin-bottom:clamp(54px,8vh,86px)}
+.selfstudy-label{font-family:var(--sans);font-size:13px;letter-spacing:.2em;color:var(--faint);margin-bottom:18px}
+.selfstudy-words{position:relative;height:1.08em;font-family:var(--serif);font-weight:900;font-size:clamp(64px,10vw,136px);line-height:1;letter-spacing:-.02em}
+.selfstudy-word{position:absolute;inset:0 auto auto 0;opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1),filter .65s ease-out}
+.selfstudy-word.is-current{opacity:1;transform:none;filter:none;color:var(--hachiman)}
+.selfstudy-count{margin-top:30px;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--faint)}
+.selfstudy-count b{font-weight:400;color:var(--hachiman)}
+.selfstudy-still{max-width:430px;margin-top:44px}
+.selfstudy-still .still-in{position:relative;overflow:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.selfstudy-still img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:center;filter:saturate(.68) contrast(1.02) brightness(.96)}
+.selfstudy-still .still-in::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 60%,rgba(30,28,25,.38))}
+.selfstudy-still figcaption{margin-top:12px;font-family:var(--sans);font-size:12px;letter-spacing:.15em;color:var(--faint)}
+.selfstudy-copy{padding:14svh 0 10svh}
+.selfstudy-head{padding-bottom:12svh}
+.selfstudy-head h2{font-size:clamp(38px,5vw,64px);max-width:9em}
+.self-step{min-height:68svh;display:flex;flex-direction:column;justify-content:center;border-top:1px solid var(--rule);opacity:.28;transform:translateY(22px);transition:opacity .65s ease-out,transform .8s cubic-bezier(.16,1,.3,1)}
+.self-step.is-current{opacity:1;transform:none}
+.self-step .step-no{font-family:var(--sans);font-size:13px;letter-spacing:.2em;color:var(--hachiman);margin-bottom:22px}
+.self-step h3{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4vw,50px);line-height:1.25;letter-spacing:-.035em;margin-bottom:28px}
+.self-step p{font-size:clamp(18px,1.4vw,20px);line-height:2;color:var(--dim);max-width:31em}
+.selfstudy-land{font-family:var(--serif);font-weight:900;font-size:clamp(28px,4vw,48px);line-height:1.45;letter-spacing:-.03em;padding:10svh 0 6svh;border-top:1px solid var(--rule)}
+.selfstudy-land span{color:var(--hachiman)}
+
+/* ── 07 真物：三个人的关系在同一张纸面里依次接管 ── */
+.genuine-story{height:300svh;background:var(--paper)}
+.genuine-stick{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;padding:72px 32px 42px}
+.genuine-grid{position:relative;width:min(1160px,100%);height:min(76svh,760px)}
+.genuine-visual{position:absolute;inset:0 auto 0 0;width:54%;overflow:hidden;background:var(--paper-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.genuine-frame{position:absolute;inset:0;opacity:0;transform:scale(.96);filter:blur(7px);will-change:opacity,transform,filter}
+.genuine-frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(.48) sepia(.12) contrast(.92) brightness(.94)}
+.genuine-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(237,231,220,.04) 52%,rgba(30,28,25,.66));pointer-events:none}
+.genuine-frame .cap{position:absolute;left:22px;bottom:19px;z-index:2;font-family:var(--sans);font-size:12px;letter-spacing:.18em;color:#EEE8DE}
+.genuine-beat{--beat-base:-50%;position:absolute;right:0;top:50%;width:39%;opacity:0;transform:translateY(calc(var(--beat-base) + 36px));will-change:opacity,transform,filter}
+.genuine-beat .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.24em;color:var(--rust);margin-bottom:20px}
+.genuine-beat h3{font-family:var(--serif);font-weight:900;font-size:clamp(38px,4.8vw,66px);line-height:1.12;letter-spacing:-.04em;margin-bottom:28px}
+.genuine-beat p{font-size:clamp(18px,1.35vw,20px);line-height:2;color:var(--dim);max-width:25em}
+.genuine-beat.tone-yukino .num{color:var(--yukino)}
+.genuine-beat.tone-yui .num{color:var(--yui)}
+.genuine-beat.tone-hachiman .num{color:var(--hachiman)}
+.character-voice{margin:28px 0 0;padding:21px 0 0;border-top:1px solid rgba(143,90,39,.34)}
+.character-voice>p{font-family:var(--serif);font-weight:900;font-size:clamp(20px,1.55vw,24px);line-height:1.65;letter-spacing:-.018em;color:var(--yui);max-width:23em}
+.jp-line{display:block;margin-top:12px;font-family:var(--mincho);font-size:12px;line-height:1.65;letter-spacing:.02em;color:var(--faint)}
+.genuine-cast{position:absolute;right:0;top:0;width:39%;display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:13px;letter-spacing:.16em}
+.genuine-note{position:absolute;right:0;bottom:0;width:39%;font-family:var(--sans);font-size:12px;letter-spacing:.16em;color:var(--faint)}
+
+/* ── 08 开口：前一段在动，这一段停下来让句子自己承担重量 ── */
+.say{padding:140px 32px 150px;background:var(--paper-2)}
+.say-head{max-width:1120px;margin:0 auto 96px}
+.say-head h2{font-size:clamp(50px,9vw,116px);line-height:1.04;letter-spacing:-.045em;margin:0;max-width:9em}
+.say-grid{display:grid;grid-template-columns:repeat(3,1fr);max-width:1120px;margin:0 auto;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.say-piece{padding:46px clamp(24px,3vw,42px) 54px 0;min-height:340px}
+.say-piece+.say-piece{border-left:1px solid var(--rule);padding-left:clamp(24px,3vw,42px)}
+.say-piece .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--rust);margin-bottom:28px}
+.say-piece h3{font-family:var(--serif);font-weight:900;font-size:clamp(24px,2.7vw,36px);line-height:1.4;letter-spacing:-.025em;margin-bottom:24px}
+.say-piece p{font-size:18px;line-height:2;color:var(--dim)}
+.say-land{max-width:1120px;margin:110px auto 0;font-family:var(--serif);font-weight:900;font-size:clamp(34px,5.5vw,70px);line-height:1.4;letter-spacing:-.04em}
+.say-land .r,.light.end .r{color:var(--hachiman)}
+
+/* ── 收尾 ── */
+.end{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:110px 32px}
+.end p{font-family:var(--serif);font-weight:900;font-size:clamp(25px,4.4vw,56px);
+  line-height:1.44;letter-spacing:-.038em;max-width:min(19em,88vw)}
+.end .r{color:var(--rust)}
+.end .coda{font-family:var(--serif);font-weight:300;font-size:clamp(18px,1.9vw,21px);
+  line-height:2.15;color:var(--dim);margin-top:clamp(46px,6vh,74px);max-width:26em;
+  padding-top:clamp(30px,4vh,44px);border-top:1px solid var(--rule)}
+.end .coda .dim{color:var(--faint)}
+.end .jp{font-family:var(--mincho);font-weight:400;font-size:14px;letter-spacing:.16em;
+  color:var(--faint);margin-top:clamp(38px,5vh,56px);line-height:2}
+
+/* ── 04 清醒被推翻：一句判断放大到被视口裁切，再由下一句接管 ── */
+.swap{height:330svh;background:var(--ink-live,var(--ink))}
+.swap-stick{position:sticky;top:0;height:100svh;display:flex;align-items:center;
+  justify-content:center;text-align:center;padding:0 32px;overflow:hidden}
+.swap-layer{position:absolute;max-width:min(13em,86vw);
+  font-family:var(--serif);font-weight:900;font-size:clamp(30px,6vw,80px);
+  line-height:1.3;letter-spacing:-.05em;will-change:opacity,transform,filter}
+.swap-layer.wide{max-width:min(18em,90vw);font-size:clamp(28px,4.5vw,62px);line-height:1.55}
+.swap-layer .r{color:var(--rust)}
+.swap-judgment{font:inherit;line-height:inherit}
+.hachiman-voice{max-width:620px;margin:38px auto 0;padding-top:22px;border-top:1px solid rgba(228,223,213,.2);font-weight:300;text-align:left}
+.hachiman-voice>p{font-size:clamp(18px,1.65vw,23px);line-height:1.75;letter-spacing:-.012em;color:#D8D1C7}
+.hachiman-voice .jp-line{color:#958D82}
+/* 逐字：光标靠近，骨白变成锈色，盔甲下面有了体温。 */
+.swap-layer .ch{display:inline-block;will-change:transform,color,text-shadow;
+  transition:transform 420ms cubic-bezier(.16,1,.3,1),color 360ms ease-out,text-shadow 360ms ease-out}
+
+/* ── 04→05 裂缝：壳先裂开一条线，纸色世界再从里面涨出来 ──
+   替代原来的整屏渐变 —— 渐变是"页面换了个底色"，
+   裂开是"壳破了"。翻转必须是事件，不是过渡。 */
+.crack{height:150svh;background:var(--ink-live,var(--ink))}
+.crack-stick{position:sticky;top:0;height:100svh;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink-live,var(--ink))}
+.crack-card{width:100%;height:100%;background:var(--paper);
+  transform:scale(.002,.005);will-change:transform}
+/* 裂开到一半时，纸里那句话浮上来 —— 空着的过渡屏读起来像页面坏了 */
+.crack-say{position:absolute;z-index:2;text-align:center;padding:0 32px;
+  opacity:0;will-change:opacity,transform}
+.crack-say .lab{display:block;font-family:var(--sans);font-size:13px;
+  letter-spacing:.34em;color:#8A7F70;margin-bottom:26px}
+.crack-say p{font-family:var(--serif);font-weight:900;color:#1E1C19;
+  font-size:clamp(21px,3.3vw,40px);line-height:1.62;letter-spacing:-.04em}
+@media(max-width:860px){.swap{height:200svh}.crack{height:135svh}}
+
+.reveal{opacity:0;transform:translateY(20px);
+  transition:opacity .95s cubic-bezier(.16,1,.3,1),transform .95s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:900px){.hero-in{padding-left:22px}}
+@media(max-width:860px){
+  .pad{padding:96px 22px}
+  .prologue{min-height:1040px}
+  .prologue-stage{min-height:520px}
+  .prologue-sound{max-width:13em;line-height:1.7;text-align:right}
+  .prologue-after{bottom:28px;font-size:11px}
+  .split,.split.flip{grid-template-columns:1fr;gap:30px}
+  .split.flip .fig{order:0}
+  .split .fig{position:relative;top:auto}
+  .manifesto,.peel,.end{padding:80px 22px}
+  .rail{padding:16px 20px;font-size:11px;letter-spacing:.14em}
+  .facts{grid-template-columns:1fr}
+  .fact:nth-child(odd){border-right:0}
+  .fact:nth-child(even){padding-left:0}
+  .selfstudy{padding:0 22px}
+  .selfstudy-grid{grid-template-columns:1fr;gap:0}
+  .selfstudy-anchor{position:relative;top:auto;padding:94px 0 20px}
+  .selfstudy-anchor .eyeb{margin-bottom:44px}
+  .selfstudy-words{font-size:clamp(62px,22vw,92px)}
+  .selfstudy-copy{padding:0 0 80px}
+  .selfstudy-head{padding:32px 0 70px}
+  .self-step{min-height:auto;padding:72px 0;opacity:1;transform:none}
+  .selfstudy-land{padding:76px 0 24px}
+  .genuine-story{height:300svh}
+  .genuine-stick{padding:64px 22px 28px}
+  .genuine-grid{height:100%;width:100%}
+  .genuine-visual{left:0;right:0;top:6svh;bottom:auto;width:auto;height:38svh}
+  .genuine-beat{--beat-base:0%;left:0;right:0;top:50svh;width:auto;transform:translateY(32px)}
+  .genuine-beat h3{font-size:clamp(34px,10.5vw,50px);margin-bottom:20px}
+  .genuine-beat p{font-size:18px;line-height:1.9}
+  .voice-master{right:14px;bottom:14px;width:30px;height:30px;font-size:14px}
+  .hachiman-voice{margin-top:26px;padding-top:18px}
+  .hachiman-voice>p{font-size:18px}
+  .character-voice{margin-top:16px;padding-top:14px}
+  .character-voice>p{font-size:19px;line-height:1.55}
+  .jp-line{display:none}
+  .genuine-note{left:0;right:0;bottom:1svh;width:auto;font-size:12px}
+  .genuine-cast{left:0;right:0;top:.5svh;width:auto;font-size:12px;gap:12px}
+  .say{padding:96px 22px 110px}
+  .say-head{margin-bottom:64px}
+  .say-grid{grid-template-columns:1fr}
+  .say-piece{min-height:0;padding:50px 0 58px}
+  .say-piece+.say-piece{border-left:0;border-top:1px solid var(--rule);padding-left:0}
+  .say-land{margin-top:78px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation:none!important;transition-duration:.01ms!important}
+  .prologue{height:100svh;min-height:560px}
+  .prologue-stage{position:relative;clip-path:none}
+  .hero{margin-top:0}
+  .prologue-media video{opacity:1!important;filter:saturate(.72) contrast(1.06) brightness(.82)!important}
+  .prologue-after{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none}
+  .selfstudy-grid{display:block}
+  .selfstudy-anchor{position:relative;top:auto;padding:90px 0 20px}
+  .selfstudy-words{display:none}
+  .self-step{min-height:0;padding:64px 0;opacity:1!important;transform:none!important}
+  .genuine-story{height:auto;padding:90px 22px}
+  .genuine-stick{position:relative;height:auto;padding:0;overflow:visible}
+  .genuine-grid{height:auto;display:grid;gap:54px}
+  .genuine-visual,.genuine-note{display:none}
+  .genuine-cast{position:relative;inset:auto;width:auto;margin-bottom:8px}
+  .genuine-beat{position:relative;inset:auto;width:auto;opacity:1!important;transform:none!important;filter:none!important}
+}
+
+}
+</style>
+</head>
+<body class="is-intro-idle">
+
+
+<div class="bar" id="bar" aria-hidden="true"></div>
+<div class="rail">
+  <span>HIKIGAYA HACHIMAN · character portrait</span>
+  <span class="now" id="now"><i>00</i> &nbsp;序</span>
+</div>
+<button class="voice-master" id="voiceMaster" type="button" aria-pressed="false" aria-label="开启声音"><span aria-hidden="true">♪</span><span class="sr-only">开启声音</span></button>
+<audio id="bgmTrack" preload="none" src="./assets/departures-bgm.m4a"></audio>
+
+<section class="prologue dark" aria-label="第一集序幕">
+  <div class="prologue-stage" id="prologueStage">
+    <div class="prologue-media">
+      <video id="prologueVideo" muted playsinline preload="auto" poster="./assets/img/prologue-youth-is-a-lie.webp" aria-describedby="prologueTranscript">
+        <!-- VP9 比 H.264 小一半；不支持的浏览器（主要是老 Safari）自动回落 mp4 -->
+        <source src="./assets/prologue-youth-is-a-lie-no-face.webm" type="video/webm">
+        <source src="./assets/prologue-youth-is-a-lie-no-face.mp4" type="video/mp4">
+      </video>
+    </div>
+    <p id="prologueTranscript" class="sr-only">画面写着：青春是谎言，是罪恶；影像停在这句判词上。</p>
+    <button class="prologue-sound" id="prologueSound" type="button" aria-controls="prologueVideo" aria-pressed="false" aria-label="播放序章"><span aria-hidden="true">▶</span></button>
+    <p class="prologue-invite">从“青春是谎言”开始，认识他。</p>
+    </div>
+    <p class="prologue-after">向下 · 认识说这句话的人</p>
+  </div>
+</section>
+
+<!-- 00 ─────────────────────────────── -->
+<section class="hero dark" data-ch="00" data-name="序">
+  <div class="hero-img"><img src="./assets/img/hachiman.webp" alt="比企谷八幡" width="1400" height="1171"></div>
+  <div class="vline" aria-hidden="true">やはり俺の青春ラブコメはまちがっている</div>
+  <div class="hero-in">
+    <p class="kicker">《我的青春恋爱物语果然有问题》· 主人公</p>
+    <h1>比企谷八幡。<br><span class="r">一个把孤独活成原则的人。</span></h1>
+    <p class="cue">向 下 · 先认识他</p>
+  </div>
+</section>
+
+<!-- 01 ─────────────────────────────── -->
+<section class="dark pad" data-ch="01" data-name="人物简介">
+  <div class="split">
+    <figure class="fig profile-fig reveal">
+      <div class="fig-in"><img src="./assets/img/lonely-shadow.webp" alt="比企谷八幡独自坐在教室里，身后投着人的影子" width="1400" height="910" loading="lazy"></div>
+      <figcaption>他习惯把自己放在关系之外，再从那里看回来</figcaption>
+    </figure>
+    <div class="col">
+      <p class="eyeb reveal">01 &nbsp;/&nbsp; 人物简介 &nbsp;<em>Profile</em></p>
+      <h2 class="reveal">先认识他。<br>别急着喜欢他。</h2>
+      <dl class="facts reveal">
+        <div class="fact"><dt>故事</dt><dd>《我的青春恋爱物语果然有问题》</dd></div>
+        <div class="fact"><dt>身份</dt><dd>总武高中二年级生</dd></div>
+        <div class="fact"><dt>起点</dt><dd>习惯独处的普通学生</dd></div>
+        <div class="fact"><dt>转折</dt><dd>被平冢静带进侍奉部</dd></div>
+      </dl>
+      <p class="lead reveal">大老师是这部作品的主角。成绩不差，脑子很快，也不是完全交不到朋友；他只是很早就认定，很多热闹靠的是气氛、顺从和谁都不去戳破的谎话。</p>
+      <p class="reveal">于是他先把自己放到人群外面。与其等着被关系推开，不如提前声明自己不需要它。这让他显得刻薄，也让他拥有一种过分敏锐的观察力。</p>
+      <p class="reveal">进入侍奉部后，他和雪之下雪乃、由比滨结衣一起接下同学们的委托。大老师解决问题时，常会先看见所有人想藏起来的那一面，再把最难看的后果揽到自己身上。</p>
+      <p class="confession reveal">这不是单纯的聪明，也不是值得歌颂的牺牲。他把受伤当作判断，把自我否定当成安全距离；故事真正要处理的，是他能不能承认自己也想被好好对待。</p>
+      <p class="land reveal">他看得很清楚。<br>只是总把自己排除在答案之外。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 ─────────────────────────────── -->
+<section class="dark pad" data-ch="02" data-name="清醒">
+  <div class="split">
+    <figure class="fig reveal">
+      <div class="fig-in"><img src="./assets/img/lonely-crowd.webp" alt="比企谷八幡坐在教室里，被周围同学隔在画面之外" width="1400" height="910" loading="lazy"></div>
+      <figcaption>站在所有人外面</figcaption>
+    </figure>
+    <div class="col">
+      <p class="eyeb reveal">02 &nbsp;/&nbsp; 清醒 &nbsp;<em>Clarity</em></p>
+      <h2 class="reveal">我最先喜欢上了<br>他的清醒。</h2>
+      <p class="lead reveal">大老师说话总像站在教室最后一排。青春、友情、善意，别人拿来相信的东西，他会先翻到背面，看一眼它究竟遮住了什么。</p>
+      <p class="reveal">他不相信“大家好好相处”就能解决问题。有人维持体面，就一定有人吞下难堪；有人扮演温柔，就可能只是不想承担说真话的后果。他的判断很难听，可最麻烦的是，往往说中了。</p>
+      <p class="confession reveal">高中时候的我看这个，卧槽这也太帅了吧。他的那些话叛逆、特立独行，又像从一个更高的位置俯视人群。那时候我觉得，这才叫人间清醒。</p>
+      <p class="land reveal">如果他说错了，事情反而简单。<br>难办的是他说对了。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 ─────────────────────────────── -->
+<section class="dark pad" data-ch="03" data-name="孤傲">
+  <div class="split flip">
+    <figure class="fig reveal">
+      <div class="fig-in"><img src="./assets/img/lonely-hallway-03.webp" alt="比企谷八幡独自站在门口，望向走廊之外" width="1600" height="890" loading="lazy"></div>
+      <figcaption>站在圈子外面</figcaption>
+    </figure>
+    <div class="col">
+      <p class="eyeb reveal">03 &nbsp;/&nbsp; 孤傲 &nbsp;<em>Arrogance</em></p>
+      <h2 class="reveal">我和他像的，<br>不只是装出来的高冷。</h2>
+      <p class="lead confession reveal">我身上也有一点“嘉豪”。高中时的我确实会把孤独穿得很帅：故作松弛，故作忧郁，嘴上说根本不在乎有没有人看见，心里又渴望自己被人看见。</p>
+      <p class="confession reveal">但这解释不了全部。那时候的我也是真的自视甚高。不是“没人理我，所以假装不需要”的体面说法。我确实傲慢地看不起周围所有人，觉得他们的热闹无聊、规则虚伪、判断浅薄。我活在自己的世界里，而且并不觉得那有什么需要被纠正。</p>
+      <p class="reveal">大老师吸引我的地方也在这里。他不是一个等着被谁拯救的可怜人。他的孤僻里有受伤，也有骄傲；他真的认为很多集体共识经不起推敲，也真的不愿意为了合群把自己削平。</p>
+      <p class="turn reveal">所以我不会再把我们所有的孤独都解释成防御。<b>有些时候，我们就是宁愿站在外面，也不愿意和他们一样。</b></p>
+      <p class="land reveal">孤傲的灵魂无需羁旅之地。<br>至少当时的我，真心这么相信。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 转折 ─────────────────────────────── -->
+<section class="swap dark" data-ch="04" data-name="两面">
+  <div class="swap-stick">
+    <p class="swap-layer" id="swA">他管这个叫<br><span class="r">清醒</span>。</p>
+    <p class="swap-layer" id="swB">这不是清醒。<br>这是<span class="r">盔甲</span>。</p>
+    <div class="swap-layer wide" id="swC">
+      <p class="swap-judgment">他把会受伤的部分藏在里面，<br>只把最硬的一面留给世界。</p>
+      <blockquote class="hachiman-voice">
+        <p>“如果说真相是残酷的，<br>那谎言一定是温柔的吧。<br>所以，温柔即是谎言。”</p>
+        <small class="jp-line" lang="ja">真実が残酷だというのなら、きっと嘘は優しいのだろう。だから、優しさは嘘だ。</small>
+      </blockquote>
+    </div>
+    <audio id="hachimanVoice" preload="none" src="./assets/hachiman-truth-kindness.m4a"></audio>
+  </div>
+</section>
+
+<!-- 卸甲：概念即交互 ─────────────────── -->
+<section class="dark peel" data-ch="05" data-name="卸甲">
+  <p class="eyeb reveal" style="justify-content:center">05 &nbsp;/&nbsp; 卸甲 &nbsp;<em>Unarm</em></p>
+  <h2 class="reveal">最硬的一面朝外。<br>会受伤的部分留在里面。</h2>
+  <p class="hint reveal" id="peelHint">用光标或手指慢慢擦掉盔甲；也可以按回车直接卸下。</p>
+  <div class="canvas-wrap reveal" id="wrap" role="button" tabindex="0" aria-describedby="peelHint" aria-label="卸下比企谷八幡的盔甲">
+    <canvas id="cv"></canvas>
+    <div class="meter" id="meter" role="progressbar" aria-label="卸甲进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">卸下 <b id="pct">0</b>%</div>
+  </div>
+  <p class="after" id="peelAfter">盔甲下面，不是软弱。<br>是他不肯交出去的真心。</p>
+</section>
+
+<section class="crack">
+  <div class="crack-stick">
+    <div class="crack-card" id="crackCard" aria-hidden="true"></div>
+    <div class="crack-say" id="crackSay">
+      <span class="lab">盔 甲 之 下</span>
+      <p>不是突然变得合群。<br>只是终于承认，自己也有想要的东西。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 ── 世界翻转：壳底下 ───────────── -->
+<section class="light selfstudy" data-ch="06" data-name="自爆">
+  <div class="selfstudy-grid">
+    <aside class="selfstudy-anchor">
+      <p class="eyeb">06 &nbsp;/&nbsp; 自爆 &nbsp;<em>Self-destruction</em></p>
+      <p class="selfstudy-label">同一个动作，三种名字</p>
+      <div class="selfstudy-words" aria-hidden="true">
+        <span class="selfstudy-word is-current" data-self-word="0">解决</span>
+        <span class="selfstudy-word" data-self-word="1">控制</span>
+        <span class="selfstudy-word" data-self-word="2">暴露</span>
+      </div>
+      <p class="selfstudy-count"><b id="selfNow">01</b> / 03</p>
+      <figure class="selfstudy-still reveal">
+        <div class="still-in"><img src="./assets/img/first-self-destruction.webp" alt="比企谷八幡被人逼到墙边" width="1400" height="910" loading="lazy"></div>
+        <figcaption>事情还没结束，他已经站到了最难看的位置。</figcaption>
+      </figure>
+    </aside>
+    <div class="selfstudy-copy">
+      <header class="selfstudy-head reveal">
+        <h2>我为什么觉得<br>他的自爆很帅。</h2>
+      </header>
+      <article class="self-step is-current" data-self-step="0">
+        <span class="step-no">01 / 他解决问题</span>
+        <h3>他先把自己推到最难看的位置。</h3>
+        <p>每次出事，他最熟练的解法都是让所有人的矛盾落到自己身上。事情解决了，他也顺便证明了：看吧，我本来就是最不值钱的那个。</p>
+      </article>
+      <article class="self-step" data-self-step="1">
+        <span class="step-no">02 / 他保留解释权</span>
+        <h3>先说“是我的错”，就不用等别人来判。</h3>
+        <p>高中时的我偏偏觉得这很帅。因为我也会抢先把自己放低。不是所有事真都怪我，而是这样至少还能决定，自己以什么样子输掉。</p>
+      </article>
+      <article class="self-step" data-self-step="2">
+        <span class="step-no">03 / 他躲开暴露</span>
+        <h3>替所有人扛一次，比承认需要谁容易。</h3>
+        <p>前者只会受伤，后者却要把愿望交到别人手里。受伤至少是熟悉的。所以他的自我牺牲里有善意，也有自卑、控制和害怕被拒绝。</p>
+      </article>
+      <p class="selfstudy-land reveal">很蠢。<br><span>但也确实很帅。</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="light genuine-story" data-ch="07" data-name="真物">
+  <div class="genuine-stick">
+    <div class="genuine-grid">
+      <div class="genuine-visual" aria-hidden="true">
+        <figure class="genuine-frame" data-genuine-frame="0">
+          <img src="./assets/img/club-room.webp" alt="" width="1400" height="910" loading="lazy">
+          <figcaption class="cap">RELATION / 01 · 三个人</figcaption>
+        </figure>
+        <figure class="genuine-frame" data-genuine-frame="1">
+          <img src="./assets/img/yui-self-destruction.webp" alt="" width="1400" height="910" loading="lazy">
+          <figcaption class="cap">RELATION / 02 · 结衣的追问</figcaption>
+        </figure>
+        <figure class="genuine-frame" data-genuine-frame="2">
+          <img src="./assets/img/hachiman-yui-bamboo.webp" alt="" width="1400" height="910" loading="lazy">
+          <figcaption class="cap">RELATION / 03 · 真物</figcaption>
+        </figure>
+      </div>
+      <p class="genuine-cast" aria-label="三位主要人物的代表色"><span class="c-yukino">雪乃</span><span class="c-hachiman">八幡</span><span class="c-yui">结衣／团子</span></p>
+      <article class="genuine-beat tone-yukino" data-genuine-beat="0">
+        <span class="num">01 / 三个人</span>
+        <h3><span class="c-yukino">他们替别人解题，</span><br>最后却困在彼此之间。</h3>
+        <p>侍奉部的核心是三个人。<span class="c-yukino">雪之下</span>和<span class="c-hachiman">八幡</span>一样锋利，<span class="c-yui">由比滨</span>更温柔，也更害怕关系破掉。最难解决的，恰好是三个人谁都不肯说明白的感情。</p>
+      </article>
+      <article class="genuine-beat tone-yui" data-genuine-beat="1">
+        <span class="num">02 / 唯一</span>
+        <h3><span class="c-yui">如果你对所有人都一样，</span><br>那我算什么。</h3>
+        <p>我想要的不是对所有人都一样的温柔，而是“只有我这里不一样”。可靠近以后，我也会敏感、回避、先把人推开——我在意的是，自己有没有被区别地看见。</p>
+        <blockquote class="character-voice">
+          <p>“多考虑一下别人的感受啊。<br>为什么你明明什么都懂，却偏偏不懂这个呢？”</p>
+          <small class="jp-line" lang="ja">人の気持ち、もっと考えてよ。なんでいろんなことが分かるのに、それが分からないの？</small>
+          <audio id="yuiVoice" preload="none" src="./assets/yui-quote-0245.m4a"></audio>
+        </blockquote>
+      </article>
+      <article class="genuine-beat tone-hachiman" data-genuine-beat="2">
+        <span class="num">03 / 真物</span>
+        <h3><span class="c-hachiman">他想要一段</span><br>不用猜的关系。</h3>
+        <p>“真物”不是一句高级台词。他只是受不了所有人都很体贴、都不说真话、都假装关系没有坏。他想要的不是正确关系，而是一段不用反复猜测的关系。</p>
+      </article>
+      <p class="genuine-note">向下滚动 · 三个人的关系会在同一张纸面里逐层显影</p>
+    </div>
+  </div>
+</section>
+
+<!-- 08 ─────────────────────────────── -->
+<section class="light say" data-ch="08" data-name="开口">
+  <header class="say-head">
+    <p class="eyeb reveal">08 &nbsp;/&nbsp; 开口 &nbsp;<em>Say It</em></p>
+    <h2 class="reveal">他说不清。<br>我也说不清。</h2>
+  </header>
+  <div class="say-grid">
+    <article class="say-piece reveal">
+      <span class="num">01 / 堵住</span>
+      <h3>脑子里已经说过很多遍。</h3>
+      <p>真到开口时，却像有东西堵在喉咙。后来干脆用玩笑、冷脸，或者一句“算了”代替。</p>
+    </article>
+    <article class="say-piece reveal">
+      <span class="num">02 / 想要</span>
+      <h3>一个没练习过“想要”的人。</h3>
+      <p>第一次承认自己有愿望，当然会说得很难看。所以我理解他为什么直到最后，才喊出“我想要真物”。</p>
+    </article>
+    <article class="say-piece reveal">
+      <span class="num">03 / 停止猜测</span>
+      <h3>他没有突然学会相信别人。</h3>
+      <p>他只是终于不想再靠误会和体贴的客套，把一段关系继续拖下去。</p>
+    </article>
+  </div>
+  <p class="say-land reveal">他喊的是“我想要真物”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
+  <audio id="genuineVoice" preload="none" src="./assets/hachiman-genuine.m4a"></audio>
+</section>
+
+<section class="light end" data-ch="09" data-name="还喜欢">
+  <p class="reveal">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要真物。</span></p>
+  <p class="coda reveal">高中时，我喜欢他，因为我觉得我们是同一种人。<br>我们都站在人群外面，傲慢地活在自己的世界里。<br><span class="dim">那份傲慢是真的。它后面的孤独也是真的。</span></p>
+  <p class="jp reveal">やはり俺の青春ラブコメはまちがっている。</p>
+</section>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+document.documentElement.style.setProperty('--ink-live','rgb(15,16,15)');
+
+/* 人物原声：读者授权一次，之后按阅读位置各触发一次。 */
+const prologue = document.querySelector('.prologue');
+const prologueStage = document.getElementById('prologueStage');
+const prologueVideo = document.getElementById('prologueVideo');
+const prologueSound = document.getElementById('prologueSound');
+const hero = document.querySelector('.hero');
+const voiceMaster = document.getElementById('voiceMaster');
+const bgmTrack = document.getElementById('bgmTrack');
+const hachimanVoice = document.getElementById('hachimanVoice');
+const yuiVoice = document.getElementById('yuiVoice');
+const genuineVoice = document.getElementById('genuineVoice');
+const voiceTracks = {
+  hachiman: hachimanVoice,
+  yui: yuiVoice,
+  genuine: genuineVoice,
+};
+const voiceNames = { hachiman: '八幡原声', yui: '结衣原声', genuine: '八幡原声' };
+const voiceTriggered = new Set();
+let voicesEnabled = false, voiceWasTouched = false, activeVoice = '', activeVoiceStartedAt = 0, prologueHasAdvanced = false;
+let prologueScrollFrame = 0, prologueScrollActive = false;
+let bgmFadeFrame = 0;
+let voiceFadeFrame = 0;
+
+/* 一条音乐底轨；不另加视觉控件，只在原声前后让出位置。 */
+function fadeBgm(target, duration, done) {
+  if (!bgmTrack) return;
+  cancelAnimationFrame(bgmFadeFrame);
+  const from = bgmTrack.volume;
+  const startedAt = performance.now();
+  const tick = now => {
+    const p = Math.min(1, (now - startedAt) / duration);
+    bgmTrack.volume = from + (target - from) * (1 - Math.pow(1 - p, 3));
+    if (p < 1) bgmFadeFrame = requestAnimationFrame(tick);
+    else if (done) done();
+  };
+  bgmFadeFrame = requestAnimationFrame(tick);
+}
+function startBgm() {
+  if (!bgmTrack || !voicesEnabled) return;
+  if (bgmTrack.ended) bgmTrack.currentTime = 0;
+  const start = bgmTrack.paused ? bgmTrack.play() : Promise.resolve();
+  start.then(() => fadeBgm(.16, 1300)).catch(() => { /* 浏览器不允许时音乐静默，原声仍可用。 */ });
+}
+function duckBgm() {
+  if (bgmTrack && !bgmTrack.paused) fadeBgm(.012, 520);
+}
+function pauseBgm(reset = false) {
+  if (!bgmTrack) return;
+  const finish = () => {
+    bgmTrack.pause();
+    if (reset) bgmTrack.currentTime = 0;
+  };
+  if (bgmTrack.paused) finish();
+  else fadeBgm(0, 420, finish);
+}
+function fadeNarrativeVoice(audio, target, duration) {
+  cancelAnimationFrame(voiceFadeFrame);
+  const from = audio.volume;
+  const startedAt = performance.now();
+  const tick = now => {
+    const p = Math.min(1, (now - startedAt) / duration);
+    audio.volume = from + (target - from) * (1 - Math.pow(1 - p, 3));
+    if (p < 1) voiceFadeFrame = requestAnimationFrame(tick);
+  };
+  voiceFadeFrame = requestAnimationFrame(tick);
+}
+if (bgmTrack) bgmTrack.volume = 0;
+
+function setMasterState() {
+  if (!voiceMaster) return;
+  voiceMaster.classList.toggle('is-on', voicesEnabled);
+  voiceMaster.setAttribute('aria-pressed', String(voicesEnabled));
+  const state = voicesEnabled ? activeVoice ? voiceNames[activeVoice] + ' · 播放中' : '已开启' : voiceWasTouched ? '已关闭' : '未开启';
+  const label = voicesEnabled ? '关闭声音，当前' + state : '开启声音，当前' + state;
+  voiceMaster.setAttribute('aria-label', label);
+  voiceMaster.setAttribute('title', label);
+  voiceMaster.innerHTML = '<span aria-hidden="true">♪</span><span class="sr-only">' + label + '</span>';
+}
+function stopTrack(id, reset) {
+  const audio = voiceTracks[id];
+  if (!audio) return;
+  cancelAnimationFrame(voiceFadeFrame);
+  audio.pause();
+  if (reset) {
+    audio.currentTime = 0;
+    audio.volume = 1;
+  }
+  if (activeVoice === id) activeVoice = '';
+}
+function stopNarrativeTracks(reset) {
+  Object.keys(voiceTracks).forEach(id => stopTrack(id, reset));
+  setMasterState();
+}
+function unlockNarrativeTracks() {
+  const attempts = [];
+  for (const audio of [...Object.values(voiceTracks), bgmTrack]) {
+    if (!audio) continue;
+    audio.muted = true;
+    const attempt = audio.play();
+    audio.pause();
+    audio.currentTime = 0;
+    attempts.push(Promise.resolve(attempt)
+      .catch(() => { /* 仍保留手动播放按钮；不同浏览器的媒体策略不完全相同。 */ })
+      .finally(() => { audio.muted = false }));
+  }
+  return Promise.allSettled(attempts);
+}
+function enableVoices() {
+  voicesEnabled = true;
+  voiceWasTouched = true;
+  setMasterState();
+  if (prologueSound && (!prologueVideo || prologueVideo.paused || prologueVideo.muted)) {
+    prologueSound.classList.remove('is-playing');
+    prologueSound.setAttribute('aria-pressed', 'false');
+    prologueSound.innerHTML = '<span aria-hidden="true">▶</span>';
+    prologueSound.setAttribute('aria-label', '重播序章');
+  }
+  return unlockNarrativeTracks().then(() => {
+    if (prologueHasAdvanced || scrollY > innerHeight * .8) startBgm();
+  });
+}
+function disableVoices() {
+  voicesEnabled = false;
+  voiceWasTouched = true;
+  stopNarrativeTracks(true);
+  pauseBgm(true);
+  if (prologueVideo && !prologueVideo.paused) prologueVideo.pause();
+  if (prologueVideo) prologueVideo.muted = true;
+  if (prologueSound) {
+    prologueSound.classList.remove('is-playing');
+    prologueSound.setAttribute('aria-pressed', 'false');
+    prologueSound.innerHTML = '<span aria-hidden="true">▶</span>';
+    prologueSound.setAttribute('aria-label', '播放序章');
+  }
+  setMasterState();
+}
+function playNarrativeVoice(id, manual) {
+  const audio = voiceTracks[id];
+  if (!audio || (!manual && (!voicesEnabled || voiceTriggered.has(id)))) return;
+  if (activeVoice === id && !audio.paused) {
+    if (manual) stopTrack(id, false);
+    return;
+  }
+  stopNarrativeTracks(true);
+  duckBgm();
+  if (prologueVideo && !prologueVideo.paused) prologueVideo.pause();
+  audio.currentTime = 0;
+  audio.volume = 0;
+  activeVoice = id;
+  activeVoiceStartedAt = performance.now();
+  audio.play().then(() => {
+    if (!manual) voiceTriggered.add(id);
+    fadeNarrativeVoice(audio, 1, 650);
+    setMasterState();
+  }).catch(() => {
+    if (activeVoice === id) activeVoice = '';
+    startBgm();
+    setMasterState();
+  });
+}
+Object.entries(voiceTracks).forEach(([id, audio]) => {
+  if (!audio) return;
+  audio.addEventListener('ended', () => {
+    const hasPlayedPastUnlock = performance.now() - activeVoiceStartedAt > 900;
+    if (activeVoice === id && hasPlayedPastUnlock) activeVoice = '';
+    if (hasPlayedPastUnlock) startBgm();
+    setMasterState();
+  });
+});
+if (voiceMaster) {
+  voiceMaster.addEventListener('click', () => {
+    if (voicesEnabled) disableVoices();
+    else { enableVoices(); onScroll() }
+  });
+  setMasterState();
+}
+
+/* 原片序幕：中央播放键是整页唯一的声音授权入口；结尾自动翻入人物档案。 */
+if (prologue && prologueVideo && prologueSound) {
+  window.setTimeout(() => prologueStage && prologueStage.classList.add('is-ready'), reduce ? 0 : 460);
+  const setPrologueButton = state => {
+    const playing = state === 'playing';
+    prologueSound.classList.toggle('is-playing', playing);
+    prologueSound.setAttribute('aria-pressed', String(playing));
+    const icon = playing ? 'Ⅱ' : '▶';
+    const label = playing ? '暂停序章' : state === 'paused' ? '继续序章' : '播放序章';
+    prologueSound.setAttribute('aria-label', label);
+    prologueSound.innerHTML = '<span aria-hidden="true">' + icon + '</span>';
+  };
+  const runPrologueScroll = nextTop => {
+    if (reduce) {
+      window.scrollTo({ top: nextTop, behavior: 'auto' });
+      return;
+    }
+    cancelPrologueScroll();
+    const from = scrollY;
+    const distance = nextTop - from;
+    const startedAt = performance.now();
+    const duration = 1450;
+    prologueScrollActive = true;
+    const tick = now => {
+      if (!prologueScrollActive) return;
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = progress < .5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      window.scrollTo(0, from + distance * eased);
+      if (progress < 1) prologueScrollFrame = requestAnimationFrame(tick);
+      else {
+        prologueScrollActive = false;
+        prologueScrollFrame = 0;
+        onScroll();
+      }
+    };
+    prologueScrollFrame = requestAnimationFrame(tick);
+  };
+  const cancelPrologueScroll = () => {
+    if (!prologueScrollActive) return;
+    cancelAnimationFrame(prologueScrollFrame);
+    prologueScrollFrame = 0;
+    prologueScrollActive = false;
+    onScroll();
+  };
+  const interruptPrologueScroll = event => {
+    if (event.type === 'keydown' && !['ArrowDown','ArrowUp','PageDown','PageUp',' ','Home','End'].includes(event.key)) return;
+    cancelPrologueScroll();
+  };
+  addEventListener('wheel', interruptPrologueScroll, { passive: true });
+  addEventListener('touchstart', interruptPrologueScroll, { passive: true });
+  addEventListener('pointerdown', interruptPrologueScroll, { passive: true });
+  addEventListener('keydown', interruptPrologueScroll);
+  const advanceFromPrologue = () => {
+    if (prologueHasAdvanced || !hero) return;
+    prologueHasAdvanced = true;
+    prologue.classList.add('is-advancing');
+    const nextTop = hero.offsetTop;
+    window.setTimeout(() => startBgm(), reduce ? 0 : 620);
+    window.setTimeout(() => runPrologueScroll(nextTop), reduce ? 0 : 920);
+  };
+  prologueVideo.addEventListener('ended', () => {
+    prologue.classList.add('is-ended');
+    setPrologueButton('ended');
+    advanceFromPrologue();
+  });
+  prologueVideo.addEventListener('play', () => { cancelPrologueScroll(); prologueHasAdvanced = false });
+  prologueSound.addEventListener('click', () => {
+    if (!prologueVideo.paused && !prologueVideo.muted) {
+      prologueVideo.pause();
+      setPrologueButton('paused');
+      return;
+    }
+    if (!voicesEnabled) enableVoices();
+    document.body.classList.remove('is-intro-idle');
+    prologueStage.classList.add('is-started');
+    stopNarrativeTracks(true);
+    pauseBgm(false);
+    if (prologueVideo.muted || prologueVideo.ended || prologueVideo.currentTime >= prologueVideo.duration - .25) prologueVideo.currentTime = 0;
+    prologueVideo.muted = false;
+    prologue.classList.remove('is-ended', 'is-advancing');
+    prologueVideo.play().then(() => setPrologueButton('playing')).catch(() => setPrologueButton('ended'));
+  });
+  if (reduce) {
+    prologueVideo.removeAttribute('autoplay');
+    prologueVideo.pause();
+    prologue.classList.add('is-ended');
+    setPrologueButton('ended');
+  } else {
+    const prologueObserver = new IntersectionObserver(entries => {
+      const visible = entries[0] && entries[0].isIntersecting;
+      if (!visible && !prologueVideo.paused) {
+        prologueVideo.pause();
+        if (!prologueVideo.muted) setPrologueButton('paused');
+      }
+    }, { threshold: .12 });
+    prologueObserver.observe(prologue);
+  }
+}
+
+/* ── 活的章节指示器 + 进度条 ── */
+const secs = [...document.querySelectorAll('section[data-ch]')];
+const now = document.getElementById('now'), bar = document.getElementById('bar');
+const rail = document.querySelector('.rail');
+let raf = 0;
+function onScroll() {
+  const max = document.body.scrollHeight - innerHeight;
+  bar.style.width = (max > 0 ? Math.min(1, Math.max(0, scrollY / max)) * 100 : 0) + '%';
+  const mid = scrollY + innerHeight * 0.45;
+  let cur = secs[0];
+  for (const s of secs) if (s.offsetTop <= mid) cur = s;
+  now.innerHTML = '<i>' + cur.dataset.ch + '</i> &nbsp;' + cur.dataset.name;
+  const isNear = el => {
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    return r.top < innerHeight * 1.35 && r.bottom > -innerHeight * .35;
+  };
+  const nearPrologue = isNear(prologue), nearSwap = isNear(swap), nearCrack = isNear(crack);
+  const nearSelf = isNear(selfStudy), nearGenuine = isNear(genuineStory);
+  const nearSay = isNear(document.querySelector('.say'));
+  if (nearSelf) driveSelf();
+  if (nearGenuine) driveGenuine();
+  if (nearSwap) driveSwap();
+  const onPaper = nearCrack ? driveCrack() : false;
+  if (nearPrologue) drivePrologueExit();
+  if (nearSwap || nearGenuine || nearSay) driveNarrativeVoices();
+  const isPaper = cur.classList.contains('light') || onPaper;
+  rail.classList.toggle('on-light', isPaper);
+  if (voiceMaster) voiceMaster.classList.toggle('on-light', isPaper);
+}
+
+/* ── 滚动进度：元素从"顶边进视口"到"底边贴视口顶"的 0→1 ── */
+function prog(el) {
+  const r = el.getBoundingClientRect(), span = r.height - innerHeight;
+  return span <= 0 ? 0 : Math.min(1, Math.max(0, -r.top / span));
+}
+const ease = t => 1 - Math.pow(1 - t, 3);
+const seg = (q, a, b) => Math.min(1, Math.max(0, (q - a) / (b - a)));
+const stageAlpha = (q, start, hold, end) => Math.min(
+  ease(seg(q, start, hold)),
+  1 - ease(seg(q, hold + .12, end))
+);
+
+/* 00 不是紧跟序幕切进来：视频最后一格像铁皮档案页向上收起。 */
+function drivePrologueExit() {
+  if (!prologue || !prologueStage) return;
+  if (reduce) {
+    prologueStage.style.setProperty('--prologue-open', '0');
+    return;
+  }
+  const q = prog(prologue);
+  const open = ease(seg(q, .03, .44));
+  prologueStage.style.setProperty('--prologue-open', String(open));
+  if (open > .08 && prologueVideo && !prologueVideo.muted && !prologueVideo.paused) {
+    prologueVideo.pause();
+    if (prologueSound) prologueSound.classList.remove('is-playing');
+  }
+}
+
+/* 桌面按 sticky 叙事进度触发；移动端／减弱动效模式按真实文本入屏触发。 */
+function driveNarrativeVoices() {
+  if (!voicesEnabled) return;
+  const compact = reduce || matchMedia('(max-width:860px)').matches;
+  const swapEl = document.querySelector('.swap');
+  if (swapEl && !voiceTriggered.has('hachiman')) {
+    const r = swapEl.getBoundingClientRect();
+    const q = prog(swapEl);
+    const ready = compact ? r.top < innerHeight * .58 && r.bottom > innerHeight * .18 : q >= .27 && q <= .92 && r.bottom > innerHeight * .15;
+    if (ready) playNarrativeVoice('hachiman', false);
+  }
+  const yuiBeat = document.querySelector('.genuine-beat.tone-yui');
+  const genuineEl = document.querySelector('.genuine-story');
+  if (yuiBeat && genuineEl && !voiceTriggered.has('yui')) {
+    const r = yuiBeat.getBoundingClientRect();
+    const q = prog(genuineEl);
+    const ready = compact ? r.top < innerHeight * .62 && r.bottom > innerHeight * .22 : q >= .33 && q <= .92 && genuineEl.getBoundingClientRect().bottom > innerHeight * .15;
+    if (ready) playNarrativeVoice('yui', false);
+  }
+  const genuineLine = document.querySelector('.say-land');
+  if (genuineLine && !voiceTriggered.has('genuine')) {
+    const r = genuineLine.getBoundingClientRect();
+    if (r.top < innerHeight * .68 && r.bottom > innerHeight * .2) playNarrativeVoice('genuine', false);
+  }
+}
+
+/* 06 自爆：右侧读到哪一步，左侧就把同一个动作改成新的名字 */
+const selfStudy = document.querySelector('.selfstudy');
+const selfSteps = [...document.querySelectorAll('[data-self-step]')];
+const selfWords = [...document.querySelectorAll('[data-self-word]')];
+const selfNow = document.getElementById('selfNow');
+function driveSelf() {
+  if (!selfStudy || !selfSteps.length) return;
+  let active = 0, nearest = Infinity;
+  for (let i = 0; i < selfSteps.length; i++) {
+    const r = selfSteps[i].getBoundingClientRect();
+    const d = Math.abs(r.top + r.height * .5 - innerHeight * .52);
+    if (d < nearest) { nearest = d; active = i }
+  }
+  for (let i = 0; i < selfSteps.length; i++) {
+    selfSteps[i].classList.toggle('is-current', i === active);
+    selfWords[i].classList.toggle('is-current', i === active);
+  }
+  selfNow.textContent = String(active + 1).padStart(2, '0');
+}
+
+/* 07 真物：三个人→唯一性→不用猜，图像与判断在同一屏接管 */
+const genuineStory = document.querySelector('.genuine-story');
+const genuineFrames = [...document.querySelectorAll('[data-genuine-frame]')];
+const genuineBeats = [...document.querySelectorAll('[data-genuine-beat]')];
+function driveGenuine() {
+  if (reduce || !genuineStory) return;
+  const q = prog(genuineStory);
+  const windows = [[-.08,.02,.36],[.29,.39,.70],[.62,.72,2]];
+  for (let i = 0; i < genuineBeats.length; i++) {
+    const [start, hold, end] = windows[i];
+    const a = i === genuineBeats.length - 1
+      ? ease(seg(q, start, hold))
+      : stageAlpha(q, start, hold, end);
+    const enter = 1 - ease(seg(q, start, hold));
+    genuineBeats[i].style.opacity = a;
+    genuineBeats[i].style.transform = 'translateY(calc(var(--beat-base) + ' + (36 * enter) + 'px))';
+    genuineBeats[i].style.filter = 'blur(' + (6 * enter) + 'px)';
+    genuineFrames[i].style.opacity = a;
+    genuineFrames[i].style.transform = 'scale(' + (.96 + .04 * (1 - enter)) + ')';
+    genuineFrames[i].style.filter = 'blur(' + (7 * enter) + 'px)';
+  }
+}
+
+/* 04 判断被推翻：前一句放大裁切，后一句接管，再落回人物解释 */
+const swap = document.querySelector('.swap'), swA = document.getElementById('swA'), swB = document.getElementById('swB'), swC = document.getElementById('swC');
+function driveSwap() {
+  if (reduce) { swA.style.opacity = 0; swB.style.opacity = 0; swC.style.opacity = 1; return }
+  const q = prog(swap);
+  const out = ease(seg(q, .10, .31));
+  swA.style.opacity = 1 - out;
+  swA.style.transform = 'scale(' + (1 + 1.55 * out) + ')';
+  swA.style.filter = 'blur(' + (5 * out) + 'px)';
+
+  const bIn = ease(seg(q, .26, .43));
+  const bOut = ease(seg(q, .58, .76));
+  swB.style.opacity = Math.min(bIn, 1 - bOut);
+  swB.style.transform = 'translateY(' + (48 * (1 - bIn)) + 'px) scale(' + (1 + .52 * bOut) + ')';
+  swB.style.filter = 'blur(' + (6 * Math.max(1 - bIn, bOut)) + 'px)';
+
+  const cIn = ease(seg(q, .72, .91));
+  swC.style.opacity = cIn;
+  swC.style.transform = 'translateY(' + (54 * (1 - cIn)) + 'px) scale(' + (.96 + .04 * cIn) + ')';
+  swC.style.filter = 'blur(' + (7 * (1 - cIn)) + 'px)';
+}
+
+/* 04→05 裂缝：先横向裂开一条线，再让纸色涨满整屏 */
+const crack = document.querySelector('.crack'), crackCard = document.getElementById('crackCard');
+const crackSay = document.getElementById('crackSay');
+function driveCrack() {
+  if (reduce) {
+    crackCard.style.transform = 'scale(1.03)';
+    crackSay.style.opacity = 1;
+    crackSay.style.transform = 'none';
+    return true;
+  }
+  const q = prog(crack);
+  const sx = .002 + ease(seg(q, .04, .40)) * 1.028;
+  const sy = .005 + ease(seg(q, .36, .82)) * 1.025;
+  crackCard.style.transform = 'scale(' + sx + ',' + sy + ')';
+  const say = ease(seg(q, .60, .90));
+  crackSay.style.opacity = say;
+  crackSay.style.transform = 'translateY(' + (24 * (1 - say)) + 'px)';
+  return sy > .55;
+}
+addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(onScroll) }, { passive: true });
+addEventListener('resize', onScroll);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopNarrativeTracks(false);
+    if (prologueVideo && !prologueVideo.paused) prologueVideo.pause();
+  } else onScroll();
+});
+onScroll();
+
+/* ── 卸甲：暗色盔甲盖在图上，划过即擦除 ── */
+const cv = document.getElementById('cv'), wrap = document.getElementById('wrap');
+const pctEl = document.getElementById('pct'), meterEl = document.getElementById('meter');
+const afterEl = document.getElementById('peelAfter');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0, painted = false;
+function sizeCanvas() {
+  const r = wrap.getBoundingClientRect();
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  W = cv.width = Math.round(r.width * dpr);
+  H = cv.height = Math.round(r.height * dpr);
+  paintShell();
+}
+function drawShell(alpha) {
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = alpha === undefined ? 1 : alpha;
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#26272A'); g.addColorStop(1, '#141513');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // 铁的纹理：细密横纹
+  ctx.strokeStyle = 'rgba(255,255,255,.03)'; ctx.lineWidth = 1;
+  for (let y = 0; y < H; y += 3) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
+  ctx.globalAlpha = 1;
+  painted = true;
+}
+function paintShell() { ctx.clearRect(0, 0, W, H); drawShell(1) }
+/* 低分辨率占用网格统计卸甲比例 —— 逐像素读全画布会卡死主线程 */
+const GX = 40, GY = 27;
+let grid = new Uint8Array(GX * GY), cleared = 0, lastPct = -1, locked = false, lastTouch = 0;
+function markGrid(x, y, r) {
+  const cw = W / GX, ch = H / GY;
+  const x0 = Math.max(0, Math.floor((x - r) / cw)), x1 = Math.min(GX - 1, Math.floor((x + r) / cw));
+  const y0 = Math.max(0, Math.floor((y - r) / ch)), y1 = Math.min(GY - 1, Math.floor((y + r) / ch));
+  for (let gy = y0; gy <= y1; gy++) for (let gx = x0; gx <= x1; gx++) {
+    const i = gy * GX + gx;
+    if (grid[i]) continue;
+    const dx = (gx + .5) * cw - x, dy = (gy + .5) * ch - y;
+    if (dx * dx + dy * dy <= r * r) { grid[i] = 1; cleared++ }
+  }
+  const pct = Math.round(cleared / (GX * GY) * 100);
+  if (pct !== lastPct) { lastPct = pct; pctEl.textContent = pct; meterEl.setAttribute('aria-valuenow', pct); applyWarmth(pct);
+    if (pct >= 55) afterEl.classList.add('on');
+    if (pct >= 72) locked = true;                 // 擦过临界点，盔甲不再长回来
+  }
+}
+/* 卸甲进度让整个暗世界回暖 —— 交互有后果，纸色也就不再是突然出现 */
+const W0 = [15,16,15], W1 = [46,34,26], T0 = [228,223,213], T1 = [244,235,222];
+const lerp3 = (a,b,t) => 'rgb(' + a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',') + ')';
+function applyWarmth(pct) {
+  const t = Math.min(1, pct / 72);
+  document.querySelectorAll('.dark').forEach(el => {
+    el.style.backgroundColor = lerp3(W0, W1, t);
+    el.style.color = lerp3(T0, T1, t);
+  });
+  document.body.style.backgroundColor = lerp3(W0, W1, t);
+  document.documentElement.style.setProperty('--ink-live', lerp3(W0, W1, t));
+}
+function erase(x, y) {
+  ctx.globalCompositeOperation = 'destination-out';
+  const r = Math.max(26, Math.min(W, H) * 0.11);
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.62, 'rgba(0,0,0,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  markGrid(x, y, r * .72);
+}
+function at(e) {
+  const r = cv.getBoundingClientRect();
+  const dpr = W / r.width;
+  const p = e.touches ? e.touches[0] : e;
+  return [(p.clientX - r.left) * dpr, (p.clientY - r.top) * dpr];
+}
+let moveRaf = 0, pend = null;
+function move(e) {
+  if (!painted) return;
+  pend = at(e); lastTouch = performance.now();
+  if (!moveRaf) moveRaf = requestAnimationFrame(() => { moveRaf = 0; if (pend) erase(pend[0], pend[1]) });
+}
+/* 盔甲会自己长回来 —— 他会重新武装自己。擦过临界点才彻底放弃。 */
+setInterval(() => {
+  if (locked || !painted || cleared === 0) return;
+  if (performance.now() - lastTouch < 620) return;   // 手还在动就不长
+  drawShell(0.05);
+  let back = Math.max(1, Math.round(cleared * 0.02));
+  for (let i = grid.length - 1; i >= 0 && back > 0; i--) {
+    if (grid[i] && Math.random() < .25) { grid[i] = 0; cleared--; back-- }
+  }
+  const pct = Math.round(cleared / (GX * GY) * 100);
+  if (pct !== lastPct) { lastPct = pct; pctEl.textContent = pct; meterEl.setAttribute('aria-valuenow', pct); applyWarmth(pct) }
+}, 300);
+
+wrap.addEventListener('mousemove', move);
+wrap.addEventListener('touchmove', e => { e.preventDefault(); move(e) }, { passive: false });
+/* 键盘 / 触摸不便时的兜底：点一下或按回车、空格全部卸下 */
+function revealAll() {
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  grid.fill(1); cleared = GX * GY; lastPct = 100; locked = true; applyWarmth(100);
+  pctEl.textContent = '100'; meterEl.setAttribute('aria-valuenow', '100'); afterEl.classList.add('on');
+}
+wrap.addEventListener('click', revealAll);
+wrap.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  e.preventDefault();
+  revealAll();
+});
+addEventListener('resize', () => {
+  grid = new Uint8Array(GX*GY); cleared = 0; lastPct = -1; sizeCanvas();
+  if (locked) revealAll();
+  else {
+    pctEl.textContent = '0'; meterEl.setAttribute('aria-valuenow', '0'); applyWarmth(0);
+  }
+});
+
+/* 图像铺在 canvas 底下 */
+const under = new Image();
+under.src = './assets/img/unarmor-rooftop-05.webp';
+under.onload = () => {
+  wrap.style.background = 'center/cover no-repeat url(' + JSON.stringify(under.src) + ')';
+  sizeCanvas();
+};
+if (under.complete) under.onload();
+
+/* ── reveal ── */
+if (reduce) document.querySelectorAll('.reveal').forEach(e => e.classList.add('in'));
+else {
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+  }), { threshold: .15, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(e => io.observe(e));
+
+  /* 兜底：IntersectionObserver 在后台标签页里完全不触发
+     （visibilityState === 'hidden' 时，即使元素就在视口里也不回调）。
+     页面若是在后台标签加载的，.reveal 会永远停在 opacity:0，
+     它里面 loading="lazy" 的图也就永远不下载 —— 症状是"要刷新才看得到图"。
+     下面三个入口任何一个生效都能救回来，且都不与 io 冲突（已 in 的跳过）。 */
+  const revealNow = () => {
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * 1.15 && r.bottom > -innerHeight * 0.15) {
+        el.classList.add('in');
+        io.unobserve(el);
+        // 懒加载图在容器不可见时可能被浏览器一直推迟，这里直接改判为立即加载
+        el.querySelectorAll('img[loading="lazy"]').forEach(im => {
+          if (!im.complete || !im.naturalWidth) im.loading = 'eager';
+        });
+      }
+    });
+  };
+  /* 这里刻意不用 requestAnimationFrame 节流：后台标签页的 rAF 会被节流到不回调，
+     而兜底恰恰就是为后台标签页准备的，用 rAF 等于兜底本身失效。改用时间戳节流。 */
+  let revLast = 0;
+  const queueReveal = () => {
+    const t = Date.now();
+    if (t - revLast < 80) return;
+    revLast = t;
+    revealNow();
+  };
+  addEventListener('scroll', queueReveal, { passive: true });
+  addEventListener('resize', queueReveal);
+  addEventListener('load', queueReveal);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) queueReveal() });
+  /* 后台标签页里 scroll / rAF / IntersectionObserver 全都不触发，只有定时器还活着。
+     所以最后一层兜底必须是纯定时的：每 500ms 查一次，全部揭示完就自行停止。
+     可见标签页里 IO 早就把活干完了，这一层只是空跑几次，代价可忽略。 */
+  const revTick = setInterval(() => {
+    revealNow();
+    if (!document.querySelector('.reveal:not(.in)')) clearInterval(revTick);
+  }, 500);
+}
+
+/* ── 逐字：光标靠近，字从骨白升温为锈色 ──
+   参考站让文字感受重量；这里把它改写成盔甲下面的体温。 */
+(function () {
+  if (reduce || matchMedia('(hover:none)').matches) return;
+  const stick = document.querySelector('.swap-stick');
+  const chars = [];
+  for (const layer of [swA, swB, swC]) {
+    const walk = document.createTreeWalker(layer, NodeFilter.SHOW_TEXT);
+    const texts = []; let n; while (n = walk.nextNode()) texts.push(n);
+    for (const t of texts) {
+      const frag = document.createDocumentFragment();
+      for (const c of t.nodeValue) {
+        if (c.trim() === '') { frag.appendChild(document.createTextNode(c)); continue }
+        const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = c;
+        frag.appendChild(sp); chars.push(sp);
+      }
+      t.parentNode.replaceChild(frag, t);
+    }
+  }
+  let base = [], mx = -1e5, my = -1e5, tick = 0;
+  function measure() {
+    const r = stick.getBoundingClientRect();
+    base = chars.map(sp => { const b = sp.getBoundingClientRect();
+      return [b.left + b.width / 2 - r.left, b.top + b.height / 2 - r.top] });
+  }
+  function paint() {
+    tick = 0;
+    const R = 150;
+    for (let i = 0; i < chars.length; i++) {
+      const dx = base[i][0] - mx, dy = base[i][1] - my;
+      const d = Math.hypot(dx, dy);
+      if (d > R) { chars[i].style.transform = ''; chars[i].style.color = ''; chars[i].style.textShadow = ''; continue }
+      const k = (1 - d / R) ** 2;
+      const from = [228,223,213], to = [168,84,54];
+      chars[i].style.color = 'rgb(' + from.map((v,j)=>Math.round(v+(to[j]-v)*k)).join(',') + ')';
+      chars[i].style.transform = 'translateY(' + (-6*k) + 'px) scale(' + (1+.035*k) + ')';
+      chars[i].style.textShadow = '0 0 ' + (18*k) + 'px rgba(168,84,54,' + (.34*k) + ')';
+    }
+  }
+  stick.addEventListener('pointermove', e => {
+    const r = stick.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+    if (!tick) tick = requestAnimationFrame(paint);
+  }, { passive: true });
+  stick.addEventListener('pointerleave', () => { mx = my = -1e5; if (!tick) tick = requestAnimationFrame(paint) });
+  addEventListener('resize', measure);
+  requestAnimationFrame(() => { measure(); if (!base.length || !base[0][0]) measure() });
+})();
+</script>
+</body>
+</html>
