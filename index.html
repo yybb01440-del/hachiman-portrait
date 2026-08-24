@@ -388,10 +388,139 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 }
 
 }
+
+/* ── Loader ────────────────────────────────────────
+   首屏要等 1.4MB 序幕视频 + 0.57MB 字体，慢网下会空等。
+   给真实字节进度，不给转圈（转圈只证明没死，不告诉人还要多久）。
+   视觉沿用本页的锈色裂缝：和 favicon、.crack 那一屏是同一个图形。
+   内部文字全是拉丁 + 数字 —— loader 出现时子集字体尚未就绪，放中文必闪兜底字。 */
+#loader{position:fixed;inset:0;z-index:9999;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+#loader.show{opacity:1;pointer-events:auto}
+#loader.done{opacity:0;pointer-events:none}
+#loader .lw{font-family:var(--sans),sans-serif;font-size:10.5px;letter-spacing:.34em;
+  color:#8A8278;margin-bottom:30px;text-transform:uppercase}
+#loader .seam{position:relative;width:min(340px,58vw);height:2px;
+  background:rgba(228,223,213,.10);overflow:hidden}
+#loader .seam i{position:absolute;left:50%;top:0;height:100%;width:100%;
+  background:var(--rust);transform:translateX(-50%) scaleX(var(--p,0));transform-origin:50% 50%;
+  transition:transform .45s cubic-bezier(.16,1,.3,1)}
+#loader .num{font-family:var(--sans),sans-serif;font-size:11px;letter-spacing:.2em;
+  color:#A79E92;margin-top:22px;font-variant-numeric:tabular-nums}
+#loader .skip{margin-top:52px;background:none;border:0;
+  font-family:var(--sans),sans-serif;font-size:10.5px;letter-spacing:.26em;
+  color:#8A8278;cursor:pointer;padding:8px 10px;opacity:0;pointer-events:none;
+  border-bottom:1px solid rgba(168,84,54,.5);
+  transition:opacity .5s cubic-bezier(.16,1,.3,1),color .35s cubic-bezier(.16,1,.3,1)}
+#loader .skip.on{opacity:1;pointer-events:auto}
+#loader .skip:hover,#loader .skip:focus-visible{color:#C9C2B7}
+#loader .skip:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){#loader,#loader .seam i,#loader .skip{transition-duration:.01ms!important}}
 </style>
 </head>
 <body class="is-intro-idle">
 
+
+
+<!-- Loader：真实字节进度。见下方 <script> 里的说明与兜底。 -->
+<div id="loader" role="status" aria-live="polite" aria-label="Loading">
+  <p class="lw">Hikigaya Hachiman</p>
+  <div class="seam" aria-hidden="true"><i id="loaderSeam"></i></div>
+  <p class="num" id="loaderNum">0%</p>
+  <button class="skip" id="loaderSkip" type="button">Skip</button>
+</div>
+<script>
+/* 预取首屏真正要等的东西，按字节数加权算进度。不预取 BGM（4MB，在按钮后面）。
+   三重兜底保证任何情况下都不会把人困在这一屏：
+     1) 2.5s 后出现 Skip；2) 10s 硬超时强制放行；3) 任一请求失败当作已完成。
+   刻意不锁滚动（不设 html{overflow:hidden}）：遮罩本身是 fixed 全屏，背后本就看不见，
+   而锁滚动会连带影响懒加载与 reveal 的触发时机，为一点点收益引入不必要的耦合。 */
+(function () {
+  var el = document.getElementById('loader'),
+      seam = document.getElementById('loaderSeam'),
+      num = document.getElementById('loaderNum'),
+      skip = document.getElementById('loaderSkip');
+  if (!el) return;
+
+  // 预取哪个视频，要和 <video> 里浏览器实际会选的那个一致，否则会下载两遍
+  var probe = document.createElement('video');
+  var VIDEO = (probe.canPlayType && probe.canPlayType('video/webm; codecs="vp9"'))
+    ? './assets/prologue-youth-is-a-lie-no-face.webm'
+    : './assets/prologue-youth-is-a-lie-no-face.mp4';
+
+  var LIST = [
+    './assets/fonts/serifsc-900.woff2',
+    './assets/fonts/serifsc-300.woff2',
+    './assets/fonts/sanssc-400.woff2',
+    './assets/fonts/mincho-400.woff2',
+    './assets/img/prologue-youth-is-a-lie.webp',
+    './assets/img/hachiman.webp',
+    VIDEO
+  ];
+  var got = new Array(LIST.length).fill(0),
+      tot = new Array(LIST.length).fill(0),
+      finished = new Array(LIST.length).fill(false),
+      settled = false, shown = false;
+
+  function pct() {
+    var g = 0, t = 0, known = false;
+    for (var i = 0; i < LIST.length; i++) if (tot[i] > 0) { g += got[i]; t += tot[i]; known = true }
+    var byBytes = known && t > 0 ? g / t : 0;
+    var byCount = finished.filter(Boolean).length / LIST.length;   // Content-Length 缺失时的退路
+    return Math.max(0, Math.min(1, Math.max(byBytes, byCount)));
+  }
+  function paint() {
+    var p = pct();
+    seam.style.setProperty('--p', p.toFixed(4));
+    num.textContent = Math.round(p * 100) + '%';
+  }
+  function finish() {
+    if (settled) return;
+    settled = true;
+    clearTimeout(hard); clearTimeout(reveal); clearTimeout(showSkip);
+    seam.style.setProperty('--p', '1'); num.textContent = '100%';
+    if (!shown) { el.remove(); return }     // 秒开（多为回访命中缓存）：根本不露脸
+    el.classList.add('done');
+    setTimeout(function () { el.remove() }, 560);
+  }
+
+  var hard = setTimeout(finish, 10000);
+  var showSkip = setTimeout(function () { skip.classList.add('on') }, 2500);
+  var reveal = setTimeout(function () {      // 400ms 内加载完就不闪这一屏
+    if (settled) return;
+    shown = true; el.classList.add('show'); paint();
+  }, 400);
+  skip.addEventListener('click', finish);
+
+  var left = LIST.length;
+  function one(i, url) {
+    function done() {
+      if (finished[i]) return;
+      finished[i] = true;
+      if (tot[i] > 0) got[i] = tot[i];
+      paint();
+      if (--left <= 0) finish();
+    }
+    if (!window.fetch) { done(); return }
+    fetch(url, { credentials: 'same-origin' }).then(function (r) {
+      if (!r.ok || !r.body || !r.body.getReader) { done(); return }
+      var len = +(r.headers.get('content-length') || 0);
+      if (len > 0) tot[i] = len;
+      var reader = r.body.getReader();
+      (function pump() {
+        reader.read().then(function (res) {
+          if (res.done) { done(); return }
+          got[i] += res.value.length;
+          paint();
+          pump();
+        }).catch(done);
+      })();
+    }).catch(done);
+  }
+  for (var i = 0; i < LIST.length; i++) one(i, LIST[i]);
+})();
+</script>
 
 <div class="bar" id="bar" aria-hidden="true"></div>
 <div class="rail">
