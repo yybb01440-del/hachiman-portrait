@@ -1483,21 +1483,24 @@ else {
 /* ── 显示异常自检 ──
    两步走：先自己重试，修不好才提示，正常访客一次都见不到。 */
 (function () {
+  /* 只算"真正失败"的：已经结束加载（complete）却没有尺寸（naturalWidth 为 0）。
+     绝不能把 !complete 当成坏图 —— 那只是"还在下载中"，
+     对它重设 src 会掐断正在传输的请求，反而把好图弄坏。 */
   function brokenImgs() {
     return [].slice.call(document.images).filter(function (i) {
-      return !i.complete || !i.naturalWidth;
+      return i.complete && !i.naturalWidth;
     });
   }
-  /* 第一步（3s）：把没出来的图换个地址重新请求一次，不惊动用户。
+  /* 第一步（6s）：把没出来的图换个地址重新请求一次，不惊动用户。
      加 retry 参数是为了绕开可能已经失败并被缓存的那次请求。 */
   setTimeout(function () {
     brokenImgs().forEach(function (i) {
       var u = i.src.split('#')[0];
       i.src = u + (u.indexOf('?') < 0 ? '?' : '&') + 'retry=' + Date.now();
     });
-  }, 3000);
+  }, 6000);
 
-  /* 第二步（8s）：确实还有图没出来，才给一个刷新入口。 */
+  /* 第二步（14s）：确实还有图没出来，才给一个刷新入口。 */
   setTimeout(function () {
     if (!brokenImgs().length) return;
     var tip = document.createElement('div');
@@ -1516,7 +1519,7 @@ else {
     document.body.appendChild(tip);
     requestAnimationFrame(function () { tip.classList.add('on') });
     setTimeout(function () { tip.classList.add('on') }, 60);  // rAF 被节流时的退路
-  }, 8000);
+  }, 14000);
 })();
 </script>
 </body>
