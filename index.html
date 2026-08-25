@@ -456,6 +456,15 @@ body::before{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size:180px 180px}
 @media(prefers-reduced-motion:reduce){body::before{opacity:calc(var(--grain) * .7)}}
+
+/* ── 光标：卸甲的余温 ────────────────────────────
+   不是复制 05 章的"擦除画面"，那会把 Signature 做第二遍。
+   这里取它的另一半机制 —— 壳被蹭开处透出体温，随后自己凉回去。
+   触屏端不存在悬停，直接不启用；reduced-motion 同样跳过。 */
+#warm{position:fixed;inset:0;z-index:150;pointer-events:none;
+  mix-blend-mode:screen;opacity:0;transition:opacity .8s cubic-bezier(.16,1,.3,1)}
+#warm.on{opacity:1}
+@media(hover:none),(prefers-reduced-motion:reduce){#warm{display:none}}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -1535,6 +1544,73 @@ else {
     requestAnimationFrame(function () { tip.classList.add('on') });
     setTimeout(function () { tip.classList.add('on') }, 60);  // rAF 被节流时的退路
   }, 14000);
+})();
+
+/* ── 光标余温 ──
+   指针经过的地方留下一小片暖光，约 1.4s 内自行冷却消失。
+   与 05 章卸甲同源：蹭开 → 回暖 → 壳自己长回来。
+   刻意不隐藏系统光标：藏掉原生指针会违反默认心智（规范 12.7）。 */
+(function () {
+  if (reduce || matchMedia('(hover:none)').matches) return;
+  const cv = document.createElement('canvas');
+  cv.id = 'warm';
+  document.body.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  const DPR = Math.min(devicePixelRatio || 1, 1.5);   // 全屏画布，分辨率封顶省开销
+  let W = 0, H = 0;
+  function size() {
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  size();
+  addEventListener('resize', size);
+
+  const pts = [];
+  const LIFE = 1400;          // 冷却时长
+  const R = 78;               // 暖区半径
+  let raf = 0, lastX = 0, lastY = 0, peel = null;
+
+  function loop(now) {
+    raf = 0;
+    ctx.clearRect(0, 0, W, H);
+    for (let i = pts.length - 1; i >= 0; i--) {
+      const p = pts[i];
+      const age = (now - p.t) / LIFE;
+      if (age >= 1) { pts.splice(i, 1); continue }
+      const k = Math.pow(1 - age, 2.2);           // 快起慢落，禁 linear
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, R * (.55 + age * .8));
+      g.addColorStop(0, 'rgba(196,105,74,' + (.5 * k).toFixed(3) + ')');
+      g.addColorStop(.45, 'rgba(168,84,54,' + (.2 * k).toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(168,84,54,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, R * (.55 + age * .8), 0, 6.2832);
+      ctx.fill();
+    }
+    if (pts.length) raf = requestAnimationFrame(loop);
+    else cv.classList.remove('on');
+  }
+
+  addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    // 05 章的卸甲画布上不叠这层，免得两个擦除效果打架
+    if (!peel) peel = document.getElementById('wrap');
+    if (peel) {
+      const r = peel.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) return;
+    }
+    const d = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+    if (d < 26 && pts.length) return;            // 稀疏取点，避免每帧堆积
+    lastX = e.clientX; lastY = e.clientY;
+    pts.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if (pts.length > 22) pts.shift();
+    cv.classList.add('on');
+    if (!raf) raf = requestAnimationFrame(loop);
+  }, { passive: true });
+
+  addEventListener('pointerleave', () => { cv.classList.remove('on') });
 })();
 </script>
 </body>
