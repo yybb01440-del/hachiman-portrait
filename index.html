@@ -462,8 +462,10 @@ body::before{
    这里取它的另一半机制 —— 壳被蹭开处透出体温，随后自己凉回去。
    触屏端不存在悬停，直接不启用；reduced-motion 同样跳过。 */
 #warm{position:fixed;inset:0;z-index:150;pointer-events:none;
-  mix-blend-mode:screen;opacity:0;transition:opacity .8s cubic-bezier(.16,1,.3,1)}
+  mix-blend-mode:screen;opacity:0;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
 #warm.on{opacity:1}
+/* 纸色世界里 screen 会把实心橙糊成白；改用 multiply 才是"暖色浸进纸里" */
+#warm.on-light{mix-blend-mode:multiply}
 @media(hover:none),(prefers-reduced-motion:reduce){#warm{display:none}}
 </style>
 </head>
@@ -1546,9 +1548,9 @@ else {
   }, 14000);
 })();
 
-/* ── 光标余温 ──
-   指针经过的地方留下一小片暖光，约 1.4s 内自行冷却消失。
-   与 05 章卸甲同源：蹭开 → 回暖 → 壳自己长回来。
+/* ── 光标：卸甲的余温 ──
+   实心橙色圆盘精确跟随光标，身后留下正在冷却的旧圆盘。
+   与 05 章卸甲同源：蹭开 → 回暖 → 自己凉回去。
    刻意不隐藏系统光标：藏掉原生指针会违反默认心智（规范 12.7）。 */
 (function () {
   if (reduce || matchMedia('(hover:none)').matches) return;
@@ -1556,7 +1558,7 @@ else {
   cv.id = 'warm';
   document.body.appendChild(cv);
   const ctx = cv.getContext('2d');
-  const DPR = Math.min(devicePixelRatio || 1, 1.5);   // 全屏画布，分辨率封顶省开销
+  const DPR = Math.min(devicePixelRatio || 1, 1.5);
   let W = 0, H = 0;
   function size() {
     W = innerWidth; H = innerHeight;
@@ -1567,50 +1569,74 @@ else {
   size();
   addEventListener('resize', size);
 
-  const pts = [];
-  const LIFE = 1400;          // 冷却时长
-  const R = 78;               // 暖区半径
-  let raf = 0, lastX = 0, lastY = 0, peel = null;
+  const R = 34;            // 圆盘半径
+  const LIFE = 1100;       // 旧圆盘冷却时长
+  const GAP = 22;          // 每隔多远留下一个旧圆盘
+  const trail = [];
+  let cur = null, raf = 0, lastX = -1e4, lastY = -1e4, inside = false;
+
+  /* 这两个区域不叠这层：序幕视频（用户要求整屏干净）、
+     以及 05 章卸甲画布（两个擦除效果会打架）。 */
+  function blocked(x, y) {
+    for (const sel of ['.prologue', '#wrap']) {
+      const el = document.querySelector(sel);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+    }
+    return false;
+  }
+
+  function disc(x, y, r, a) {
+    ctx.fillStyle = 'rgba(196,105,74,' + a.toFixed(3) + ')';
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 6.2832);
+    ctx.fill();
+  }
 
   function loop(now) {
     raf = 0;
     ctx.clearRect(0, 0, W, H);
-    for (let i = pts.length - 1; i >= 0; i--) {
-      const p = pts[i];
+    for (let i = trail.length - 1; i >= 0; i--) {
+      const p = trail[i];
       const age = (now - p.t) / LIFE;
-      if (age >= 1) { pts.splice(i, 1); continue }
-      const k = Math.pow(1 - age, 2.2);           // 快起慢落，禁 linear
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, R * (.55 + age * .8));
-      g.addColorStop(0, 'rgba(196,105,74,' + (.5 * k).toFixed(3) + ')');
-      g.addColorStop(.45, 'rgba(168,84,54,' + (.2 * k).toFixed(3) + ')');
-      g.addColorStop(1, 'rgba(168,84,54,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, R * (.55 + age * .8), 0, 6.2832);
-      ctx.fill();
+      if (age >= 1) { trail.splice(i, 1); continue }
+      const k = Math.pow(1 - age, 2.2);        // 快起慢落，禁 linear
+      disc(p.x, p.y, R * (.35 + k * .65), .78 * k);
     }
-    if (pts.length) raf = requestAnimationFrame(loop);
+    if (cur && inside) disc(cur.x, cur.y, R, .92);   // 当前这颗：实心，几乎不透明
+    if (trail.length || (cur && inside)) raf = requestAnimationFrame(loop);
     else cv.classList.remove('on');
   }
 
   addEventListener('pointermove', e => {
     if (e.pointerType === 'touch') return;
-    // 05 章的卸甲画布上不叠这层，免得两个擦除效果打架
-    if (!peel) peel = document.getElementById('wrap');
-    if (peel) {
-      const r = peel.getBoundingClientRect();
-      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) return;
+    if (blocked(e.clientX, e.clientY)) {
+      inside = false; cur = null;
+      if (!raf) raf = requestAnimationFrame(loop);
+      return;
     }
-    const d = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-    if (d < 26 && pts.length) return;            // 稀疏取点，避免每帧堆积
-    lastX = e.clientX; lastY = e.clientY;
-    pts.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-    if (pts.length > 22) pts.shift();
+    inside = true;
+    cur = { x: e.clientX, y: e.clientY };        // 每次都更新，圆盘不滞后
+    if (Math.hypot(e.clientX - lastX, e.clientY - lastY) >= GAP) {
+      lastX = e.clientX; lastY = e.clientY;
+      trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+      if (trail.length > 16) trail.shift();
+    }
     cv.classList.add('on');
     if (!raf) raf = requestAnimationFrame(loop);
   }, { passive: true });
 
-  addEventListener('pointerleave', () => { cv.classList.remove('on') });
+  addEventListener('pointerleave', () => { inside = false; cur = null });
+  document.addEventListener('mouseleave', () => { inside = false; cur = null });
+
+  /* 深/浅两个世界要用不同混合模式，直接复用 rail 已经算好的明暗判断 */
+  const railEl = document.querySelector('.rail');
+  if (railEl && window.MutationObserver) {
+    new MutationObserver(() => {
+      cv.classList.toggle('on-light', railEl.classList.contains('on-light'));
+    }).observe(railEl, { attributes: true, attributeFilter: ['class'] });
+  }
 })();
 </script>
 </body>
