@@ -468,20 +468,49 @@ body::before{
    difference 混合保证在墨底和纸底上都看得见，不必为两个世界各写一套。
    触屏无悬停、reduced-motion 不要动效 —— 两种情况都整套关掉并还原系统光标。 */
 .cur-on,.cur-on *{cursor:none}
+/* 初始隐藏：首次 mousemove 之前没有坐标，否则会停在左上角 (0,0) 露馅 */
 #cursor-dot,#cursor-ring{position:fixed;left:0;top:0;border-radius:50%;
-  pointer-events:none;mix-blend-mode:difference;
+  pointer-events:none;mix-blend-mode:difference;opacity:0;
   transition:width .3s cubic-bezier(.16,1,.3,1),height .3s cubic-bezier(.16,1,.3,1),
-             border-color .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+             border-color .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1),
+             opacity .3s cubic-bezier(.16,1,.3,1)}
 #cursor-dot{width:6px;height:6px;background:var(--rust);z-index:10000}
 #cursor-ring{width:38px;height:38px;border:1.5px solid rgba(168,84,54,.75);z-index:9999}
 /* 悬停可交互元素：点变大、圈张开 —— 这是"这里能点"的唯一提示，不能省 */
 #cursor-dot.hovering{width:15px;height:15px;background:#C4694A}
 #cursor-ring.hovering{width:60px;height:60px;border-color:rgba(196,105,74,.6)}
-#trail-canvas{position:fixed;inset:0;pointer-events:none;z-index:9998}
-#ripple-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997}
+#trail-canvas{position:fixed;inset:0;pointer-events:none;z-index:9998;transition:opacity .25s ease}
+#ripple-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997;transition:opacity .25s ease}
+body.cur-ready #cursor-dot,body.cur-ready #cursor-ring{opacity:1}
+/* 序幕视频屏：整套光标隐藏，系统箭头还回去（否则那里会完全没有指针） */
+body.cur-off #cursor-dot,body.cur-off #cursor-ring,
+body.cur-off #trail-canvas,body.cur-off #ripple-canvas{opacity:0}
+body.cur-off .prologue,body.cur-off .prologue *{cursor:auto}
 @media(hover:none),(prefers-reduced-motion:reduce){
   #cursor-dot,#cursor-ring,#trail-canvas,#ripple-canvas{display:none}
   .cur-on,.cur-on *{cursor:auto}
+}
+
+/* ── 逐字揭示（取自 ipreview.netlify.app）────────
+   关键不是"淡入"，是每个字带 rotateX 从下方翻起来落位 ——
+   字有了厚度和落点，才读得出重量。stagger 30ms/字，与原站一致。
+   只用在 h2：正文逐字会同时跑几百个过渡，且长段落逐字反而干扰阅读。 */
+h2.reveal{filter:none;transform:none}          /* 容器不再位移模糊，交给逐字 */
+h2 .char{display:inline-block;white-space:pre;opacity:0;
+  transform:translateY(.6em) rotateX(-40deg);
+  transition:opacity .5s cubic-bezier(.22,.61,.36,1),
+             transform .5s cubic-bezier(.22,.61,.36,1)}
+h2.in .char{opacity:1;transform:none}
+
+/* ── 关键词悬停升温 ──
+   页面里 <b> 和 <mark> 本来就是被强调的词，直接让它们可悬停。
+   原站叫 .word-glow，用的是 accent 色 + 两层 text-shadow；
+   这里换成锈色，正好对上"盔甲底下的体温"。 */
+b,mark{transition:color .32s ease,text-shadow .32s ease}
+b:hover,mark:hover{color:var(--rust);
+  text-shadow:0 0 20px rgba(168,84,54,.4),0 0 42px rgba(168,84,54,.18)}
+@media(prefers-reduced-motion:reduce){
+  h2 .char{opacity:1;transform:none;transition:none}
 }
 </style>
 </head>
@@ -1576,8 +1605,7 @@ else {
   const tc = trailCv.getContext('2d'), rc = rippleCv.getContext('2d');
   document.body.classList.add('cur-on');
 
-  const lerp = (a, b, t) => a + (b - a) * t;
-  let mX = innerWidth / 2, mY = innerHeight / 2, dX = mX, dY = mY, rX = mX, rY = mY;
+  let mX = innerWidth / 2, mY = innerHeight / 2;
   const trail = [], ripples = [];
   let raf = 0;
 
@@ -1590,6 +1618,14 @@ else {
   const HOT = 'a,button,[role="button"],input,summary,.fig,figure,#wrap,.voice-master';
   addEventListener('mousemove', e => {
     mX = e.clientX; mY = e.clientY;
+    /* 直接定位，不做缓动跟随 —— 圈和点都严格贴着指针，没有延迟 */
+    dot.style.transform = 'translate(' + (mX - 3) + 'px,' + (mY - 3) + 'px)';
+    ring.style.transform = 'translate(' + (mX - 19) + 'px,' + (mY - 19) + 'px)';
+    /* 序幕视频那一屏不显示光标：看片时不该有东西在画面上跟着动 */
+    const onVideo = !!(e.target.closest && e.target.closest('.prologue'));
+    document.body.classList.add('cur-ready');
+    document.body.classList.toggle('cur-off', onVideo);
+    if (onVideo) return;
     trail.push({ x: mX, y: mY, l: 1, s: 1.5 + Math.random() * 3 });
     if (trail.length > 46) trail.shift();
     kick();
@@ -1608,11 +1644,6 @@ else {
 
   function frame() {
     raf = 0;
-    dX = lerp(dX, mX, .25); dY = lerp(dY, mY, .25);
-    rX = lerp(rX, mX, .08); rY = lerp(rY, mY, .08);
-    dot.style.transform = 'translate(' + (dX - 3) + 'px,' + (dY - 3) + 'px)';
-    ring.style.transform = 'translate(' + (rX - 19) + 'px,' + (rY - 19) + 'px)';
-
     tc.clearRect(0, 0, trailCv.width, trailCv.height);
     for (let i = trail.length - 1; i >= 0; i--) {
       const p = trail[i];
@@ -1635,14 +1666,38 @@ else {
       rc.lineWidth = 1 * r.life; rc.stroke();
     }
 
-    // 静止且无残留时停掉循环，不做常驻 rAF 空转
-    const settled = Math.abs(dX - mX) < .2 && Math.abs(dY - mY) < .2
-                 && Math.abs(rX - mX) < .2 && Math.abs(rY - mY) < .2;
-    if (!settled || trail.length || ripples.length) raf = requestAnimationFrame(frame);
+    // 拖尾和涟漪都散尽就停掉循环，不做常驻 rAF 空转
+    if (trail.length || ripples.length) raf = requestAnimationFrame(frame);
   }
   /* 一律 cancel + 重新申请：布尔门闩在 rAF 被节流时会永久卡死，这个坑踩过 */
   function kick() { if (!raf) raf = requestAnimationFrame(frame) }
   kick();
+})();
+
+/* ── 逐字拆分（配合上面的 .char 规则）──
+   在 reveal 观察器之前就把 h2 拆好，这样 .in 一到就能逐字落位。 */
+(function () {
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  document.querySelectorAll('h2').forEach(el => {
+    if (el.dataset.split) return;
+    el.dataset.split = '1';
+    // 只拆纯文本节点，保留 <br> 和 <span class="r"> 这类结构
+    [...el.childNodes].forEach(node => {
+      if (node.nodeType !== 3) return;
+      const frag = document.createDocumentFragment();
+      [...node.nodeValue].forEach(ch => {
+        const sp = document.createElement('span');
+        sp.className = 'char';
+        sp.textContent = ch;
+        frag.appendChild(sp);
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+    // 统一编号，跨 <br> 和内嵌 span 也保持连续的 30ms 递进
+    [...el.querySelectorAll('.char')].forEach((sp, i) => {
+      sp.style.transitionDelay = (i * 0.03).toFixed(2) + 's';
+    });
+  });
 })();
 </script>
 </body>
