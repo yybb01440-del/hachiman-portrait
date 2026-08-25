@@ -1175,7 +1175,8 @@ let raf = 0;
 /* ── 标题景深：像 04 那样越过焦点就放大模糊 ──
    焦点定在视口 42% 高度；标题在焦点下方时保持原样（交给逐字揭示），
    越过焦点向上时按距离放大 + 模糊 + 淡出。清掉内联样式即可交还给 CSS。 */
-const heads = [...document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp), .manifesto p')];
+const heads = [...document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp), .manifesto p')]
+  .filter(el => !el.closest('[data-ch="06"]'));   // 06 有自己的接管机制，不叠景深
 function driveHeads() {
   if (reduce) return;
   const focal = innerHeight * .42;
@@ -1767,7 +1768,11 @@ else {
    在 reveal 观察器之前就把 h2 拆好，这样 .in 一到就能逐字落位。 */
 (function () {
   if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
-  document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp)').forEach(el => {
+  /* 06 自爆整章排除：它有自己的三步接管机制（driveSelf 靠 .is-current 切换明暗），
+     再叠逐字揭示会和那套打架，读起来是乱的。这一章保持 Codex 的原样。 */
+  const targets = [...document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp)')]
+    .filter(el => !el.closest('[data-ch="06"]'));
+  targets.forEach(el => {
     if (el.dataset.split) return;
     el.dataset.split = '1';
     // 只拆纯文本节点，保留 <br> 和 <span class="r"> 这类结构
@@ -1787,6 +1792,33 @@ else {
       sp.style.transitionDelay = (i * 0.03).toFixed(2) + 's';
     });
   });
+
+  /* 这些标题里有 9 个 h3 本身没有 .reveal 类（.reveal 在它们的祖先上），
+     永远拿不到 .in，逐字就会永久停在 opacity:0 —— 标题直接看不见。
+     所以给拆过字的元素单独一套触发，不去改 .reveal 的语义。
+     三条腿：IntersectionObserver / scroll / 定时器 ——
+     后台标签页里前两者都不触发，必须留纯定时的那条。 */
+  const arm = el => {
+    if (el.classList.contains('in')) return;
+    const r = el.getBoundingClientRect();
+    if (r.top < innerHeight * 1.05 && r.bottom > -innerHeight * .1) el.classList.add('in');
+  };
+  const armAll = () => { for (const el of targets) arm(el) };
+  if (window.IntersectionObserver) {
+    const io2 = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io2.unobserve(e.target) }
+    }), { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+    targets.forEach(el => io2.observe(el));
+  }
+  let armLast = 0;
+  addEventListener('scroll', () => {
+    const t = Date.now(); if (t - armLast < 90) return; armLast = t; armAll();
+  }, { passive: true });
+  const armTick = setInterval(() => {
+    armAll();
+    if (targets.every(el => el.classList.contains('in'))) clearInterval(armTick);
+  }, 500);
+  armAll();
 })();
 </script>
 </body>
