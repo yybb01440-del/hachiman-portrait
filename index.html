@@ -318,14 +318,19 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 
 /* 兜底：不依赖任何 JS。JS 正常时 .in 早已生效，这段动画等于从 1 补间到 1，无感；
    JS 因任何原因没跑到（后台标签页、脚本报错、观察器不触发），2.5s 后也会自行显形。 */
-@keyframes revealFallback{to{opacity:1;transform:none}}
+@keyframes revealFallback{to{opacity:1;transform:none;filter:blur(0)}}
+/* 动画只挂在未揭示态上：一旦 JS 加了 .in，动画立即不再匹配，由 .reveal.in 接管。
+   否则动画优先级高于普通规则，会把 opacity 钉死在 0。 */
 .reveal:not(.in){animation:revealFallback .95s cubic-bezier(.16,1,.3,1) 2.5s forwards}
-.reveal{opacity:0;transform:translateY(20px);
-  /* 动画只挂在未揭示态上：一旦 JS 加了 .in，动画立即不再匹配，
-     由 .reveal.in 接管。否则动画优先级高于普通规则，会把 opacity 钉死在 0。 */
-
-  transition:opacity .95s cubic-bezier(.16,1,.3,1),transform .95s cubic-bezier(.16,1,.3,1)}
-.reveal.in{opacity:1;transform:none}
+/* 景深进出：字不是"淡入"，是"从模糊里对上焦"。
+   取自 storytelling.noomoagency.com —— 它把每个字符拆成独立元素各自 blur；
+   这里只做到元素级（40 个元素各过渡一次），逐字符会同时跑上百个 filter 动画，
+   在这个页面上得不偿失。 */
+.reveal{opacity:0;transform:translateY(20px);filter:blur(9px);
+  transition:opacity 1.05s cubic-bezier(.16,1,.3,1),
+             transform 1.05s cubic-bezier(.16,1,.3,1),
+             filter .9s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none;filter:blur(0)}
 
 @media(max-width:900px){.hero-in{padding-left:22px}}
 @media(max-width:860px){
@@ -381,7 +386,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   .hero{margin-top:0}
   .prologue-media video{opacity:1!important;filter:saturate(.72) contrast(1.06) brightness(.82)!important}
   .prologue-after{opacity:1;transform:none}
-  .reveal{opacity:1;transform:none;animation:none!important}
+  .reveal{opacity:1;transform:none;filter:none;animation:none!important}
   .selfstudy-grid{display:block}
   .selfstudy-anchor{position:relative;top:auto;padding:90px 0 20px}
   .selfstudy-words{display:none}
@@ -457,27 +462,6 @@ body::before{
   background-size:180px 180px}
 @media(prefers-reduced-motion:reduce){body::before{opacity:calc(var(--grain) * .7)}}
 
-/* ── 光标：卸甲的余温 ────────────────────────────
-   不是复制 05 章的"擦除画面"，那会把 Signature 做第二遍。
-   这里取它的另一半机制 —— 壳被蹭开处透出体温，随后自己凉回去。
-   触屏端不存在悬停，直接不启用；reduced-motion 同样跳过。 */
-/* lighten：暖褐(46,34,26)比墨底(15,16,15)亮 → 底色被换成"卸甲后"的颜色；
-   而正文(228,223,213)比暖褐亮得多，逐通道取最大值后原样不变 —— 所以是改底色，不是覆盖。
-   纸色世界本来就是"卸甲之后"，没有壳可卸，效果自然消失，这是对的。 */
-#warm{position:fixed;inset:0;z-index:150;pointer-events:none;
-  mix-blend-mode:lighten;opacity:0;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
-#warm.on{opacity:1}
-/* 指针本体：不参与混合，深浅两个世界都看得见，保证永远知道自己指在哪 */
-#warmDot{position:fixed;left:0;top:0;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;
-  border-radius:50%;background:var(--rust);z-index:151;pointer-events:none;
-  opacity:0;transition:opacity .25s cubic-bezier(.16,1,.3,1)}
-#warmDot.on{opacity:1}
-/* 换掉系统箭头。序幕屏和卸甲画布上不画这层，必须把原生光标还回去，
-   否则那两处会完全没有指针。 */
-body.warm-cursor,body.warm-cursor *{cursor:none}
-body.warm-cursor .prologue,body.warm-cursor .prologue *{cursor:auto}
-body.warm-cursor #wrap,body.warm-cursor #wrap *{cursor:crosshair}
-@media(hover:none),(prefers-reduced-motion:reduce){#warm{display:none}}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -1559,99 +1543,6 @@ else {
   }, 14000);
 })();
 
-/* ── 光标：卸甲的余温 ──
-   实心橙色圆盘精确跟随光标，身后留下正在冷却的旧圆盘。
-   与 05 章卸甲同源：蹭开 → 回暖 → 自己凉回去。
-   刻意不隐藏系统光标：藏掉原生指针会违反默认心智（规范 12.7）。 */
-(function () {
-  if (reduce || matchMedia('(hover:none)').matches) return;
-  const cv = document.createElement('canvas');
-  cv.id = 'warm';
-  document.body.appendChild(cv);
-  const ctx = cv.getContext('2d');
-  const dot = document.createElement('div');
-  dot.id = 'warmDot';
-  document.body.appendChild(dot);
-  document.body.classList.add('warm-cursor');
-  const DPR = Math.min(devicePixelRatio || 1, 1.5);
-  let W = 0, H = 0;
-  function size() {
-    W = innerWidth; H = innerHeight;
-    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-    cv.style.width = W + 'px'; cv.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-  size();
-  addEventListener('resize', size);
-
-  const R = 34;            // 圆盘半径
-  const LIFE = 1100;       // 旧圆盘冷却时长
-  const GAP = 22;          // 每隔多远留下一个旧圆盘
-  const trail = [];
-  let cur = null, raf = 0, lastX = -1e4, lastY = -1e4, inside = false;
-
-  /* 这两个区域不叠这层：序幕视频（用户要求整屏干净）、
-     以及 05 章卸甲画布（两个擦除效果会打架）。 */
-  function blocked(x, y) {
-    for (const sel of ['.prologue', '#wrap']) {
-      const el = document.querySelector(sel);
-      if (!el) continue;
-      const r = el.getBoundingClientRect();
-      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
-    }
-    return false;
-  }
-
-  /* 卸甲斑：中心是"卸甲后"的暖褐实色，边缘柔化。
-     配合 lighten 混合 —— 只把暗处的底色提亮成暖褐，亮处（文字）原样保留。 */
-  function disc(x, y, r, a) {
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0,   'rgba(46,34,26,' + a.toFixed(3) + ')');
-    g.addColorStop(.62, 'rgba(46,34,26,' + (a * .82).toFixed(3) + ')');
-    g.addColorStop(1,   'rgba(46,34,26,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
-  }
-
-  function loop(now) {
-    raf = 0;
-    ctx.clearRect(0, 0, W, H);
-    for (let i = trail.length - 1; i >= 0; i--) {
-      const p = trail[i];
-      const age = (now - p.t) / LIFE;
-      if (age >= 1) { trail.splice(i, 1); continue }
-      const k = Math.pow(1 - age, 2.2);        // 快起慢落，禁 linear
-      disc(p.x, p.y, R * (.35 + k * .65), .78 * k);
-    }
-    if (cur && inside) disc(cur.x, cur.y, R, .92);   // 当前这颗：实心，几乎不透明
-    if (trail.length || (cur && inside)) raf = requestAnimationFrame(loop);
-    else cv.classList.remove('on');
-  }
-
-  addEventListener('pointermove', e => {
-    if (e.pointerType === 'touch') return;
-    if (blocked(e.clientX, e.clientY)) {
-      inside = false; cur = null; dot.classList.remove('on');
-      if (!raf) raf = requestAnimationFrame(loop);
-      return;
-    }
-    inside = true;
-    cur = { x: e.clientX, y: e.clientY };        // 每次都更新，圆盘不滞后
-    dot.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
-    dot.classList.add('on');
-    if (Math.hypot(e.clientX - lastX, e.clientY - lastY) >= GAP) {
-      lastX = e.clientX; lastY = e.clientY;
-      trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-      if (trail.length > 16) trail.shift();
-    }
-    cv.classList.add('on');
-    if (!raf) raf = requestAnimationFrame(loop);
-  }, { passive: true });
-
-  addEventListener('pointerleave', () => { inside = false; cur = null; dot.classList.remove('on') });
-  document.addEventListener('mouseleave', () => { inside = false; cur = null; dot.classList.remove('on') });
-
-})();
 </script>
 </body>
 </html>
