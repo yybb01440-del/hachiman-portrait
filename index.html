@@ -461,9 +461,22 @@ body::before{
    不是复制 05 章的"擦除画面"，那会把 Signature 做第二遍。
    这里取它的另一半机制 —— 壳被蹭开处透出体温，随后自己凉回去。
    触屏端不存在悬停，直接不启用；reduced-motion 同样跳过。 */
+/* lighten：暖褐(46,34,26)比墨底(15,16,15)亮 → 底色被换成"卸甲后"的颜色；
+   而正文(228,223,213)比暖褐亮得多，逐通道取最大值后原样不变 —— 所以是改底色，不是覆盖。
+   纸色世界本来就是"卸甲之后"，没有壳可卸，效果自然消失，这是对的。 */
 #warm{position:fixed;inset:0;z-index:150;pointer-events:none;
-  opacity:0;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+  mix-blend-mode:lighten;opacity:0;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
 #warm.on{opacity:1}
+/* 指针本体：不参与混合，深浅两个世界都看得见，保证永远知道自己指在哪 */
+#warmDot{position:fixed;left:0;top:0;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;
+  border-radius:50%;background:var(--rust);z-index:151;pointer-events:none;
+  opacity:0;transition:opacity .25s cubic-bezier(.16,1,.3,1)}
+#warmDot.on{opacity:1}
+/* 换掉系统箭头。序幕屏和卸甲画布上不画这层，必须把原生光标还回去，
+   否则那两处会完全没有指针。 */
+body.warm-cursor,body.warm-cursor *{cursor:none}
+body.warm-cursor .prologue,body.warm-cursor .prologue *{cursor:auto}
+body.warm-cursor #wrap,body.warm-cursor #wrap *{cursor:crosshair}
 @media(hover:none),(prefers-reduced-motion:reduce){#warm{display:none}}
 </style>
 </head>
@@ -1556,6 +1569,10 @@ else {
   cv.id = 'warm';
   document.body.appendChild(cv);
   const ctx = cv.getContext('2d');
+  const dot = document.createElement('div');
+  dot.id = 'warmDot';
+  document.body.appendChild(dot);
+  document.body.classList.add('warm-cursor');
   const DPR = Math.min(devicePixelRatio || 1, 1.5);
   let W = 0, H = 0;
   function size() {
@@ -1585,27 +1602,15 @@ else {
     return false;
   }
 
-  /* 圆盘构造参照月相页的月亮：外围极淡光晕 + 匀色实底 + 偏左上高光。
-     平涂会显得是个色块；加了这层高光才读得出是一个受光的球体。 */
+  /* 卸甲斑：中心是"卸甲后"的暖褐实色，边缘柔化。
+     配合 lighten 混合 —— 只把暗处的底色提亮成暖褐，亮处（文字）原样保留。 */
   function disc(x, y, r, a) {
-    // 1) 外晕 —— 让边缘不至于硬切在背景上
-    const halo = ctx.createRadialGradient(x, y, r * .9, x, y, r * 1.9);
-    halo.addColorStop(0, 'rgba(168,84,54,' + (.20 * a).toFixed(3) + ')');
-    halo.addColorStop(1, 'rgba(168,84,54,0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, 6.2832); ctx.fill();
-
-    // 2) 实底 —— 匀色，边缘干脆
-    ctx.fillStyle = 'rgba(168,84,54,' + a.toFixed(3) + ')';
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0,   'rgba(46,34,26,' + a.toFixed(3) + ')');
+    g.addColorStop(.62, 'rgba(46,34,26,' + (a * .82).toFixed(3) + ')');
+    g.addColorStop(1,   'rgba(46,34,26,0)');
+    ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
-
-    // 3) 高光 —— 偏左上，做出球体的受光面
-    const lit = ctx.createRadialGradient(x - r * .28, y - r * .3, r * .08, x, y, r);
-    lit.addColorStop(0, 'rgba(226,138,102,' + (.85 * a).toFixed(3) + ')');
-    lit.addColorStop(.62, 'rgba(200,108,76,' + (.35 * a).toFixed(3) + ')');
-    lit.addColorStop(1, 'rgba(196,105,74,0)');
-    ctx.fillStyle = lit;
-    ctx.beginPath(); ctx.arc(x, y, r * .97, 0, 6.2832); ctx.fill();
   }
 
   function loop(now) {
@@ -1626,12 +1631,14 @@ else {
   addEventListener('pointermove', e => {
     if (e.pointerType === 'touch') return;
     if (blocked(e.clientX, e.clientY)) {
-      inside = false; cur = null;
+      inside = false; cur = null; dot.classList.remove('on');
       if (!raf) raf = requestAnimationFrame(loop);
       return;
     }
     inside = true;
     cur = { x: e.clientX, y: e.clientY };        // 每次都更新，圆盘不滞后
+    dot.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+    dot.classList.add('on');
     if (Math.hypot(e.clientX - lastX, e.clientY - lastY) >= GAP) {
       lastX = e.clientX; lastY = e.clientY;
       trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
@@ -1641,8 +1648,8 @@ else {
     if (!raf) raf = requestAnimationFrame(loop);
   }, { passive: true });
 
-  addEventListener('pointerleave', () => { inside = false; cur = null });
-  document.addEventListener('mouseleave', () => { inside = false; cur = null });
+  addEventListener('pointerleave', () => { inside = false; cur = null; dot.classList.remove('on') });
+  document.addEventListener('mouseleave', () => { inside = false; cur = null; dot.classList.remove('on') });
 
 })();
 </script>
