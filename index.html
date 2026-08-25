@@ -555,7 +555,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   <span class="now" id="now"><i>00</i> &nbsp;序</span>
 </div>
 <button class="voice-master" id="voiceMaster" type="button" aria-pressed="false" aria-label="开启声音"><span aria-hidden="true">♪</span><span class="sr-only">开启声音</span></button>
-<audio id="bgmTrack" preload="none" src="./assets/departures-bgm.m4a"></audio>
+<audio id="bgmTrack" preload="none" loop src="./assets/departures-bgm.m4a"></audio>
 
 <section class="prologue dark" aria-label="第一集序幕">
   <div class="prologue-stage" id="prologueStage">
@@ -850,7 +850,10 @@ function startBgm() {
   start.then(() => fadeBgm(.16, 1300)).catch(() => { /* 浏览器不允许时音乐静默，原声仍可用。 */ });
 }
 function duckBgm() {
-  if (bgmTrack && !bgmTrack.paused) fadeBgm(.012, 520);
+  /* 台词期间只做轻微让位，不把音乐压没。
+     人声以 1.0 播放，音乐正常 .16，本来就压得住；
+     早先压到 .012（1.2%）听感等同于停了 —— 那不是让位，是断掉。 */
+  if (bgmTrack && !bgmTrack.paused) fadeBgm(.11, 420);
 }
 function pauseBgm(reset = false) {
   if (!bgmTrack) return;
