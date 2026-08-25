@@ -259,7 +259,21 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 .say{padding:140px 32px 150px;background:var(--paper-2)}
 .say-head{max-width:1120px;margin:0 auto 96px}
 .say-head h2{font-size:clamp(50px,9vw,116px);line-height:1.04;letter-spacing:-.045em;margin:0;max-width:9em}
-.say-grid{display:grid;grid-template-columns:repeat(3,1fr);max-width:1120px;margin:0 auto;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+/* 三栏改成左右滚动的卡片：卡片宽度略小于容器，第三张露出一角 ——
+   这是"还有内容"的唯一暗示，比任何箭头都可靠。 */
+.say-grid{display:flex;max-width:1120px;margin:0 auto;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;scroll-behavior:smooth;
+  scrollbar-width:thin;scrollbar-color:rgba(168,84,54,.5) transparent}
+.say-grid::-webkit-scrollbar{height:3px}
+.say-grid::-webkit-scrollbar-track{background:transparent}
+.say-grid::-webkit-scrollbar-thumb{background:rgba(168,84,54,.5)}
+.say-grid:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
+/* 三张 440 = 1320，容器 1120 —— 露出约 200px，第三张明确被切开 */
+.say-piece{flex:0 0 clamp(268px,76vw,440px);scroll-snap-align:start;box-sizing:border-box}
+.say-hint{max-width:1120px;margin:18px auto 0;font-family:var(--sans);
+  font-size:12px;letter-spacing:.2em;color:var(--faint)}
 .say-piece{padding:46px clamp(24px,3vw,42px) 54px 0;min-height:340px}
 .say-piece+.say-piece{border-left:1px solid var(--rule);padding-left:clamp(24px,3vw,42px)}
 .say-piece .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--rust);margin-bottom:28px}
@@ -526,6 +540,25 @@ b:hover,mark:hover{color:var(--rust);
    缩放上限压在 1.16：这些标题在栏内排版，04 那种 2.55 倍是居中 sticky 层才吃得住的。 */
 h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;will-change:transform,filter}
 .end p.reveal:not(.coda):not(.jp),.manifesto p{transform-origin:center center}
+
+/* ── 光标笼罩处的字升温（全站）──
+   不逐字拆 span：全页几千个字符，拆了必然卡。改用一层跟随光标的径向渐变 + 混合模式。
+
+   两个世界要用相反的混合，才能都做到"字升温、底不动"（实测 Δ 值）：
+     暗世界 multiply — 骨白字 228,223,213 → 150,73,45（Δ168）；墨底几乎不变（Δ12）
+     纸世界 screen   — 近黑字  30, 28, 25 → 178,103,74（Δ148）；纸底几乎不变（Δ12）
+   曾试过 color 混合：它保留明度，亮字只变了 Δ11，等于看不见。 */
+#warmfield{position:fixed;inset:0;pointer-events:none;z-index:9996;
+  mix-blend-mode:multiply;opacity:0;transition:opacity .45s cubic-bezier(.16,1,.3,1);
+  background:radial-gradient(circle 165px at var(--wx,-999px) var(--wy,-999px),
+    rgba(168,84,54,1) 0%,rgba(168,84,54,.55) 46%,rgba(255,255,255,0) 76%)}
+/* 纸色世界反过来：源色也要取反，screen 才会把近黑的字提亮成锈色 */
+body.on-light-field #warmfield{mix-blend-mode:screen;
+  background:radial-gradient(circle 165px at var(--wx,-999px) var(--wy,-999px),
+    rgba(168,84,54,1) 0%,rgba(168,84,54,.55) 46%,rgba(0,0,0,0) 76%)}
+body.cur-ready #warmfield{opacity:1}
+body.cur-off #warmfield{opacity:0}
+@media(hover:none),(prefers-reduced-motion:reduce){#warmfield{display:none}}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -857,7 +890,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
     <p class="eyeb reveal">08 &nbsp;/&nbsp; 开口 &nbsp;<em>Say It</em></p>
     <h2 class="reveal">他说不清。<br>我也说不清。</h2>
   </header>
-  <div class="say-grid">
+  <div class="say-grid" tabindex="0" role="group" aria-label="开口的三个阶段，可左右滚动">
     <article class="say-piece reveal">
       <span class="num">01 / 堵住</span>
       <h3>脑子里已经说过很多遍。</h3>
@@ -874,6 +907,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
       <p>他只是终于不想再靠误会和体贴的客套，把一段关系继续拖下去。</p>
     </article>
   </div>
+  <p class="say-hint reveal">← 左 右 滚 动 →</p>
   <p class="say-land reveal">他喊的是“我想要真物”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
   <audio id="genuineVoice" preload="none" src="./assets/hachiman-genuine.m4a"></audio>
 </section>
@@ -1690,7 +1724,7 @@ else {
 (function () {
   if (reduce || matchMedia('(hover:none)').matches) return;
   const mk = (id, tag) => { const e = document.createElement(tag || 'div'); e.id = id; document.body.appendChild(e); return e };
-  const dot = mk('cursor-dot'), ring = mk('cursor-ring');
+  const dot = mk('cursor-dot'), ring = mk('cursor-ring'), field = mk('warmfield');
   const trailCv = mk('trail-canvas', 'canvas'), rippleCv = mk('ripple-canvas', 'canvas');
   const tc = trailCv.getContext('2d'), rc = rippleCv.getContext('2d');
   document.body.classList.add('cur-on');
@@ -1711,6 +1745,11 @@ else {
     /* 直接定位，不做缓动跟随 —— 圈和点都严格贴着指针，没有延迟 */
     dot.style.transform = 'translate(' + (mX - 3) + 'px,' + (mY - 3) + 'px)';
     ring.style.transform = 'translate(' + (mX - 19) + 'px,' + (mY - 19) + 'px)';
+    field.style.setProperty('--wx', mX + 'px');
+    field.style.setProperty('--wy', mY + 'px');
+    // 深浅两个世界混合模式相反，直接复用 rail 已经算好的明暗判断
+    const rl = document.querySelector('.rail');
+    document.body.classList.toggle('on-light-field', !!(rl && rl.classList.contains('on-light')));
     /* 序幕视频那一屏不显示光标：看片时不该有东西在画面上跟着动 */
     const onVideo = !!(e.target.closest && e.target.closest('.prologue'));
     document.body.classList.add('cur-ready');
