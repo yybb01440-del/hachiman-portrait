@@ -256,29 +256,35 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 .genuine-note{position:absolute;right:0;bottom:0;width:39%;font-family:var(--sans);font-size:12px;letter-spacing:.16em;color:var(--faint)}
 
 /* ── 08 开口：前一段在动，这一段停下来让句子自己承担重量 ── */
-.say{padding:140px 32px 150px;background:var(--paper-2)}
-.say-head{max-width:1120px;margin:0 auto 96px}
-.say-head h2{font-size:clamp(50px,9vw,116px);line-height:1.04;letter-spacing:-.045em;margin:0;max-width:9em}
-/* 三栏改成左右滚动的卡片：卡片宽度略小于容器，第三张露出一角 ——
-   这是"还有内容"的唯一暗示，比任何箭头都可靠。 */
-.say-grid{display:flex;max-width:1120px;margin:0 auto;
-  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
-  overflow-x:auto;overscroll-behavior-x:contain;
-  scroll-snap-type:x proximity;scroll-behavior:smooth;
-  scrollbar-width:thin;scrollbar-color:rgba(168,84,54,.5) transparent}
-.say-grid::-webkit-scrollbar{height:3px}
-.say-grid::-webkit-scrollbar-track{background:transparent}
-.say-grid::-webkit-scrollbar-thumb{background:rgba(168,84,54,.5)}
-.say-grid:focus-visible{outline:2px solid var(--rust);outline-offset:4px}
-/* 三张 440 = 1320，容器 1120 —— 露出约 200px，第三张明确被切开 */
-.say-piece{flex:0 0 clamp(268px,76vw,440px);scroll-snap-align:start;box-sizing:border-box}
-.say-hint{max-width:1120px;margin:18px auto 0;font-family:var(--sans);
-  font-size:12px;letter-spacing:.2em;color:var(--faint)}
-.say-piece{padding:46px clamp(24px,3vw,42px) 54px 0;min-height:340px}
+/* 08 开口：竖向滚动驱动卡片横移（与 07 真物同一套 sticky 模式）。
+   整章加高留出推进行程，内层钉住不动，只有卡片轨道在横向走。 */
+.say{height:280svh;padding:0;background:var(--paper-2)}
+.say-stick{position:sticky;top:0;height:100svh;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(34px,5vh,64px);padding:88px 32px 56px}
+.say-head{max-width:min(1400px,92vw);width:100%;margin:0 auto}
+.say-head h2{font-size:clamp(38px,6.4vw,84px);line-height:1.06;letter-spacing:-.045em;margin:0;max-width:9em}
+.say-viewport{max-width:min(1400px,92vw);width:100%;margin:0 auto;overflow:hidden;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.say-track{display:flex;will-change:transform}
+/* 一张卡约占视窗 54%，三张排开约 2100 —— 横向行程才有真正的距离 */
+.say-piece{flex:0 0 clamp(280px,54vw,700px);box-sizing:border-box;
+  padding:40px clamp(24px,3vw,42px) 46px 0;min-height:300px}
 .say-piece+.say-piece{border-left:1px solid var(--rule);padding-left:clamp(24px,3vw,42px)}
-.say-piece .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--rust);margin-bottom:28px}
-.say-piece h3{font-family:var(--serif);font-weight:900;font-size:clamp(24px,2.7vw,36px);line-height:1.4;letter-spacing:-.025em;margin-bottom:24px}
+.say-piece .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--rust);margin-bottom:24px}
+.say-piece h3{font-family:var(--serif);font-weight:900;font-size:clamp(24px,2.7vw,36px);line-height:1.4;letter-spacing:-.025em;margin-bottom:22px}
 .say-piece p{font-size:18px;line-height:2;color:var(--dim)}
+.say-hint{max-width:min(1400px,92vw);width:100%;margin:0 auto;font-family:var(--sans);
+  font-size:12px;letter-spacing:.2em;color:var(--faint)}
+.say-hint b{font-weight:400;color:var(--rust);font-variant-numeric:tabular-nums}
+.say-outro{background:var(--paper-2);padding:0 32px 150px}
+/* 减少动态时不做横移，退回可手动横滚的容器 */
+@media(prefers-reduced-motion:reduce){
+  .say{height:auto;padding:140px 0 150px}
+  .say-stick{position:static;height:auto;padding:0 32px}
+  .say-viewport{overflow-x:auto}
+  .say-track{transform:none!important}
+}
 .say-land{max-width:1120px;margin:110px auto 0;font-family:var(--serif);font-weight:900;font-size:clamp(34px,5.5vw,70px);line-height:1.4;letter-spacing:-.04em}
 .say-land .r,.light.end .r{color:var(--hachiman)}
 
@@ -385,11 +391,11 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   .jp-line{display:none}
   .genuine-note{left:0;right:0;bottom:1svh;width:auto;font-size:12px}
   .genuine-cast{left:0;right:0;top:.5svh;width:auto;font-size:12px;gap:12px}
-  .say{padding:96px 22px 110px}
-  .say-head{margin-bottom:64px}
-  .say-grid{grid-template-columns:1fr}
-  .say-piece{min-height:0;padding:50px 0 58px}
-  .say-piece+.say-piece{border-left:0;border-top:1px solid var(--rule);padding-left:0}
+  .say{height:240svh}
+  .say-stick{padding:72px 22px 44px;gap:26px}
+  .say-piece{min-height:0;padding:34px 20px 40px 0}
+  .say-piece+.say-piece{padding-left:20px}
+  .say-outro{padding:0 22px 110px}
   .say-land{margin-top:78px}
 }
 @media(prefers-reduced-motion:reduce){
@@ -886,11 +892,13 @@ body.cur-off #warmfield{opacity:0}
 
 <!-- 08 ─────────────────────────────── -->
 <section class="light say" data-ch="08" data-name="开口">
-  <header class="say-head">
+    <div class="say-stick">
+    <header class="say-head">
     <p class="eyeb reveal">08 &nbsp;/&nbsp; 开口 &nbsp;<em>Say It</em></p>
     <h2 class="reveal">他说不清。<br>我也说不清。</h2>
   </header>
-  <div class="say-grid" tabindex="0" role="group" aria-label="开口的三个阶段，可左右滚动">
+    <div class="say-viewport">
+      <div class="say-track">
     <article class="say-piece reveal">
       <span class="num">01 / 堵住</span>
       <h3>脑子里已经说过很多遍。</h3>
@@ -907,10 +915,15 @@ body.cur-off #warmfield{opacity:0}
       <p>他只是终于不想再靠误会和体贴的客套，把一段关系继续拖下去。</p>
     </article>
   </div>
-  <p class="say-hint reveal">← 左 右 滚 动 →</p>
+    </div>
+    <p class="say-hint">向 下 滚 动 · 卡 片 横 向 推 进 &nbsp; <b id="sayNow">01</b> / 03</p>
+  </div>
+</section>
+<div class="say-outro light">
   <p class="say-land reveal">他喊的是“我想要真物”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
   <audio id="genuineVoice" preload="none" src="./assets/hachiman-genuine.m4a"></audio>
-</section>
+</div>
+
 
 <section class="light end" data-ch="09" data-name="还喜欢">
   <p class="reveal">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要真物。</span></p>
@@ -1230,6 +1243,28 @@ function driveHeads() {
   }
 }
 
+/* ── 08 开口：竖向滚动驱动卡片横移 ──
+   与 07 真物同一套：整章加高、内层 sticky 钉住，用 prog() 把竖向进度映射成横向位移。
+   首尾各留 12% 缓冲，避免刚进屏就开始滑、还没滑完就出屏。 */
+const say = document.querySelector('.say');
+const sayTrack = document.querySelector('.say-track');
+const sayView = document.querySelector('.say-viewport');
+const sayNow = document.getElementById('sayNow');
+function driveSay() {
+  if (reduce || !say || !sayTrack || !sayView) return;
+  const max = sayTrack.scrollWidth - sayView.clientWidth;
+  if (max <= 0) { sayTrack.style.transform = ''; return }
+  /* 这里刻意不套 ease()：滚动联动的位移要和滚动量成正比才跟手。
+     套快起慢落的话，55% 进度就走完 92% 行程，后面一大段干等着（实测过）。 */
+  const t = seg(prog(say), .12, .88);
+  sayTrack.style.transform = 'translateX(' + (-max * t).toFixed(1) + 'px)';
+  if (sayNow) {
+    const n = Math.min(3, Math.floor(t * 2.999) + 1);
+    const txt = '0' + n;
+    if (sayNow.textContent !== txt) sayNow.textContent = txt;
+  }
+}
+
 function onScroll() {
   const max = document.body.scrollHeight - innerHeight;
   bar.style.width = (max > 0 ? Math.min(1, Math.max(0, scrollY / max)) * 100 : 0) + '%';
@@ -1243,6 +1278,7 @@ function onScroll() {
     return r.top < innerHeight * 1.35 && r.bottom > -innerHeight * .35;
   };
   driveHeads();
+  driveSay();
   const nearPrologue = isNear(prologue), nearSwap = isNear(swap), nearCrack = isNear(crack);
   const nearSelf = isNear(selfStudy), nearGenuine = isNear(genuineStory);
   const nearSay = isNear(document.querySelector('.say'));
