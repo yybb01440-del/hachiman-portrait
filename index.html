@@ -515,6 +515,17 @@ b:hover,mark:hover{color:var(--rust);
 @media(prefers-reduced-motion:reduce){
   h2 .char,h3 .char,.say-land .char,.end p .char{opacity:1;transform:none;transition:none}
 }
+
+/* 09 收尾的出现顺序：大字有 22 字的逐字递进（约 .66s），
+   而 coda / jp 是整体淡入 —— 不给延时的话小字会先于大字出现。
+   延时按大字落完的时间点排，读者才是"先看到那句话，再看到落款"。 */
+.end p.coda{transition-delay:.78s}
+.end p.jp{transition-delay:1.12s}
+
+/* 标题越过焦点后放大、模糊、淡出 —— 取自 04 章 driveSwap 的语汇。
+   缩放上限压在 1.16：这些标题在栏内排版，04 那种 2.55 倍是居中 sticky 层才吃得住的。 */
+h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;will-change:transform,filter}
+.end p.reveal:not(.coda):not(.jp),.manifesto p{transform-origin:center center}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -1161,6 +1172,29 @@ const secs = [...document.querySelectorAll('section[data-ch]')];
 const now = document.getElementById('now'), bar = document.getElementById('bar');
 const rail = document.querySelector('.rail');
 let raf = 0;
+/* ── 标题景深：像 04 那样越过焦点就放大模糊 ──
+   焦点定在视口 42% 高度；标题在焦点下方时保持原样（交给逐字揭示），
+   越过焦点向上时按距离放大 + 模糊 + 淡出。清掉内联样式即可交还给 CSS。 */
+const heads = [...document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp), .manifesto p')];
+function driveHeads() {
+  if (reduce) return;
+  const focal = innerHeight * .42;
+  for (const h of heads) {
+    const r = h.getBoundingClientRect();
+    if (r.bottom < -120 || r.top > innerHeight + 120) continue;
+    const mid = r.top + r.height / 2;
+    const d = (focal - mid) / innerHeight;
+    if (d <= 0) {
+      if (h.style.filter) { h.style.transform = ''; h.style.filter = ''; h.style.opacity = '' }
+      continue;
+    }
+    const k = Math.min(1, d / .40);
+    h.style.transform = 'scale(' + (1 + .16 * k).toFixed(3) + ')';
+    h.style.filter = 'blur(' + (5.5 * k).toFixed(2) + 'px)';
+    h.style.opacity = (1 - .92 * k).toFixed(3);
+  }
+}
+
 function onScroll() {
   const max = document.body.scrollHeight - innerHeight;
   bar.style.width = (max > 0 ? Math.min(1, Math.max(0, scrollY / max)) * 100 : 0) + '%';
@@ -1173,6 +1207,7 @@ function onScroll() {
     const r = el.getBoundingClientRect();
     return r.top < innerHeight * 1.35 && r.bottom > -innerHeight * .35;
   };
+  driveHeads();
   const nearPrologue = isNear(prologue), nearSwap = isNear(swap), nearCrack = isNear(crack);
   const nearSelf = isNear(selfStudy), nearGenuine = isNear(genuineStory);
   const nearSay = isNear(document.querySelector('.say'));
