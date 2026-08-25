@@ -264,13 +264,14 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   gap:clamp(34px,5vh,64px);padding:88px 32px 56px}
 .say-head{max-width:min(1400px,92vw);width:100%;margin:0 auto}
 .say-head h2{font-size:clamp(38px,6.4vw,84px);line-height:1.06;letter-spacing:-.045em;margin:0;max-width:9em}
-.say-viewport{max-width:min(1400px,92vw);width:100%;margin:0 auto;overflow:hidden;
+/* 三张卡叠在同一位置依次接管（与 07 真物同一套 stageAlpha 窗口），
+   只是位移方向改成横向：从右侧带模糊进场 → 对焦停住 → 向左退场。 */
+.say-viewport{position:relative;max-width:min(1240px,92vw);width:100%;margin:0 auto;
+  height:clamp(300px,44svh,400px);overflow:hidden;
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.say-track{display:flex;will-change:transform}
-/* 一张卡约占视窗 54%，三张排开约 2100 —— 横向行程才有真正的距离 */
-.say-piece{flex:0 0 clamp(280px,54vw,700px);box-sizing:border-box;
-  padding:40px clamp(24px,3vw,42px) 46px 0;min-height:300px}
-.say-piece+.say-piece{border-left:1px solid var(--rule);padding-left:clamp(24px,3vw,42px)}
+.say-piece{position:absolute;top:0;left:0;width:min(820px,100%);height:100%;
+  box-sizing:border-box;padding:38px clamp(24px,3vw,42px) 40px 0;
+  opacity:0;will-change:opacity,transform,filter}
 .say-piece .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--rust);margin-bottom:24px}
 .say-piece h3{font-family:var(--serif);font-weight:900;font-size:clamp(24px,2.7vw,36px);line-height:1.4;letter-spacing:-.025em;margin-bottom:22px}
 .say-piece p{font-size:18px;line-height:2;color:var(--dim)}
@@ -282,8 +283,9 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 @media(prefers-reduced-motion:reduce){
   .say{height:auto;padding:140px 0 150px}
   .say-stick{position:static;height:auto;padding:0 32px}
-  .say-viewport{overflow-x:auto}
-  .say-track{transform:none!important}
+  .say-viewport{height:auto;overflow:visible}
+  .say-piece{position:static;opacity:1!important;transform:none!important;filter:none!important;
+    height:auto;width:100%;padding:40px 0;border-top:1px solid var(--rule)}
 }
 .say-land{max-width:1120px;margin:110px auto 0;font-family:var(--serif);font-weight:900;font-size:clamp(34px,5.5vw,70px);line-height:1.4;letter-spacing:-.04em}
 .say-land .r,.light.end .r{color:var(--hachiman)}
@@ -393,8 +395,8 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   .genuine-cast{left:0;right:0;top:.5svh;width:auto;font-size:12px;gap:12px}
   .say{height:240svh}
   .say-stick{padding:72px 22px 44px;gap:26px}
-  .say-piece{min-height:0;padding:34px 20px 40px 0}
-  .say-piece+.say-piece{padding-left:20px}
+  .say-viewport{height:clamp(280px,52svh,360px)}
+  .say-piece{padding:28px 6px 32px 0}
   .say-outro{padding:0 22px 110px}
   .say-land{margin-top:78px}
 }
@@ -547,24 +549,12 @@ b:hover,mark:hover{color:var(--rust);
 h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;will-change:transform,filter}
 .end p.reveal:not(.coda):not(.jp),.manifesto p{transform-origin:center center}
 
-/* ── 光标笼罩处的字升温（全站）──
-   不逐字拆 span：全页几千个字符，拆了必然卡。改用一层跟随光标的径向渐变 + 混合模式。
 
-   两个世界要用相反的混合，才能都做到"字升温、底不动"（实测 Δ 值）：
-     暗世界 multiply — 骨白字 228,223,213 → 150,73,45（Δ168）；墨底几乎不变（Δ12）
-     纸世界 screen   — 近黑字  30, 28, 25 → 178,103,74（Δ148）；纸底几乎不变（Δ12）
-   曾试过 color 混合：它保留明度，亮字只变了 Δ11，等于看不见。 */
-#warmfield{position:fixed;inset:0;pointer-events:none;z-index:9996;
-  mix-blend-mode:multiply;opacity:0;transition:opacity .45s cubic-bezier(.16,1,.3,1);
-  background:radial-gradient(circle 165px at var(--wx,-999px) var(--wy,-999px),
-    rgba(168,84,54,1) 0%,rgba(168,84,54,.55) 46%,rgba(255,255,255,0) 76%)}
-/* 纸色世界反过来：源色也要取反，screen 才会把近黑的字提亮成锈色 */
-body.on-light-field #warmfield{mix-blend-mode:screen;
-  background:radial-gradient(circle 165px at var(--wx,-999px) var(--wy,-999px),
-    rgba(168,84,54,1) 0%,rgba(168,84,54,.55) 46%,rgba(0,0,0,0) 76%)}
-body.cur-ready #warmfield{opacity:1}
-body.cur-off #warmfield{opacity:0}
-@media(hover:none),(prefers-reduced-motion:reduce){#warmfield{display:none}}
+/* ── 逐字升温（04 的机制，扩到全站正文）──
+   只过渡颜色和光晕，不碰 transform：04 原版带位移缩放，
+   放到正文上会让整页抖动重排。span 用 inline 而非 inline-block，
+   中文断行规则也就完全不变。 */
+.wc{transition:color .3s ease-out,text-shadow .3s ease-out}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -898,8 +888,7 @@ body.cur-off #warmfield{opacity:0}
     <h2 class="reveal">他说不清。<br>我也说不清。</h2>
   </header>
     <div class="say-viewport">
-      <div class="say-track">
-    <article class="say-piece reveal">
+      <article class="say-piece reveal">
       <span class="num">01 / 堵住</span>
       <h3>脑子里已经说过很多遍。</h3>
       <p>真到开口时，却像有东西堵在喉咙。后来干脆用玩笑、冷脸，或者一句“算了”代替。</p>
@@ -914,9 +903,8 @@ body.cur-off #warmfield{opacity:0}
       <h3>他没有突然学会相信别人。</h3>
       <p>他只是终于不想再靠误会和体贴的客套，把一段关系继续拖下去。</p>
     </article>
-  </div>
     </div>
-    <p class="say-hint">向 下 滚 动 · 卡 片 横 向 推 进 &nbsp; <b id="sayNow">01</b> / 03</p>
+    <p class="say-hint">向 下 滚 动 · 卡 片 依 次 接 管 &nbsp; <b id="sayNow">01</b> / 03</p>
   </div>
 </section>
 <div class="say-outro light">
@@ -1247,20 +1235,30 @@ function driveHeads() {
    与 07 真物同一套：整章加高、内层 sticky 钉住，用 prog() 把竖向进度映射成横向位移。
    首尾各留 12% 缓冲，避免刚进屏就开始滑、还没滑完就出屏。 */
 const say = document.querySelector('.say');
-const sayTrack = document.querySelector('.say-track');
-const sayView = document.querySelector('.say-viewport');
+const sayPieces = [...document.querySelectorAll('.say-piece')];
 const sayNow = document.getElementById('sayNow');
+/* ── 08 开口：三张卡依次接管，位移是横向的 ──
+   窗口划分与 07 真物完全一致（stageAlpha），只把 translateY 换成 translateX，
+   并补一段"向左退场"：从右侧 +120px 带模糊进来，对焦停在 0，再向左漂出 -100px。 */
 function driveSay() {
-  if (reduce || !say || !sayTrack || !sayView) return;
-  const max = sayTrack.scrollWidth - sayView.clientWidth;
-  if (max <= 0) { sayTrack.style.transform = ''; return }
-  /* 这里刻意不套 ease()：滚动联动的位移要和滚动量成正比才跟手。
-     套快起慢落的话，55% 进度就走完 92% 行程，后面一大段干等着（实测过）。 */
-  const t = seg(prog(say), .12, .88);
-  sayTrack.style.transform = 'translateX(' + (-max * t).toFixed(1) + 'px)';
+  if (reduce || !say || !sayPieces.length) return;
+  const q = prog(say);
+  const windows = [[-.08,.02,.36],[.29,.39,.70],[.62,.72,2]];
+  let active = 0;
+  for (let i = 0; i < sayPieces.length; i++) {
+    const [start, hold, end] = windows[i];
+    const a = i === sayPieces.length - 1
+      ? ease(seg(q, start, hold))
+      : stageAlpha(q, start, hold, end);
+    const enter = 1 - ease(seg(q, start, hold));
+    const exit = i === sayPieces.length - 1 ? 0 : ease(seg(q, hold + .12, end));
+    sayPieces[i].style.opacity = a;
+    sayPieces[i].style.transform = 'translateX(' + (120 * enter - 100 * exit).toFixed(1) + 'px)';
+    sayPieces[i].style.filter = 'blur(' + (6 * Math.max(enter, exit)).toFixed(2) + 'px)';
+    if (a > .5) active = i;
+  }
   if (sayNow) {
-    const n = Math.min(3, Math.floor(t * 2.999) + 1);
-    const txt = '0' + n;
+    const txt = '0' + (active + 1);
     if (sayNow.textContent !== txt) sayNow.textContent = txt;
   }
 }
@@ -1760,7 +1758,7 @@ else {
 (function () {
   if (reduce || matchMedia('(hover:none)').matches) return;
   const mk = (id, tag) => { const e = document.createElement(tag || 'div'); e.id = id; document.body.appendChild(e); return e };
-  const dot = mk('cursor-dot'), ring = mk('cursor-ring'), field = mk('warmfield');
+  const dot = mk('cursor-dot'), ring = mk('cursor-ring');
   const trailCv = mk('trail-canvas', 'canvas'), rippleCv = mk('ripple-canvas', 'canvas');
   const tc = trailCv.getContext('2d'), rc = rippleCv.getContext('2d');
   document.body.classList.add('cur-on');
@@ -1781,11 +1779,6 @@ else {
     /* 直接定位，不做缓动跟随 —— 圈和点都严格贴着指针，没有延迟 */
     dot.style.transform = 'translate(' + (mX - 3) + 'px,' + (mY - 3) + 'px)';
     ring.style.transform = 'translate(' + (mX - 19) + 'px,' + (mY - 19) + 'px)';
-    field.style.setProperty('--wx', mX + 'px');
-    field.style.setProperty('--wy', mY + 'px');
-    // 深浅两个世界混合模式相反，直接复用 rail 已经算好的明暗判断
-    const rl = document.querySelector('.rail');
-    document.body.classList.toggle('on-light-field', !!(rl && rl.classList.contains('on-light')));
     /* 序幕视频那一屏不显示光标：看片时不该有东西在画面上跟着动 */
     const onVideo = !!(e.target.closest && e.target.closest('.prologue'));
     document.body.classList.add('cur-ready');
@@ -1894,6 +1887,93 @@ else {
     if (targets.every(el => el.classList.contains('in'))) clearInterval(armTick);
   }, 500);
   armAll();
+})();
+
+/* ── 逐字升温：光标移过的字变锈色（04 的机制，全站生效）──
+   性能三招：① 只改 color / text-shadow，不触发重排；
+   ② 位置按文档坐标缓存一次，滚动时不用重算；
+   ③ 按纵向分桶，每次只遍历光标附近几个桶，不扫全站。 */
+(function () {
+  if (reduce || matchMedia('(hover:none)').matches) return;
+  const SEL = 'h2, h3, .land, .say-land, .manifesto p, .col p, .longform p,' +
+              '.say-piece p, .self-step p, .genuine-beat p, .selfstudy-land, .end p';
+  const R = 140, BIN = 120;
+  const FROM = [228,223,213], TO = [168,84,54];
+  const LFROM = [30,28,25],   LTO = [168,84,54];     // 纸色世界的正文是近黑，起点不同
+  let items = [], bins = new Map(), lit = [];
+
+  function split() {
+    for (const el of document.querySelectorAll(SEL)) {
+      if (el.closest('.swap-stick')) continue;        // 04 自己那套不重复接管
+      if (el.dataset.wc) continue;
+      el.dataset.wc = '1';
+      if (el.querySelector('.char')) continue;        // 已被逐字揭示拆过，直接复用 .char
+      const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const texts = []; let n;
+      while (n = walk.nextNode()) texts.push(n);
+      for (const t of texts) {
+        if (!t.nodeValue.trim()) continue;
+        const frag = document.createDocumentFragment();
+        for (const c of t.nodeValue) {
+          if (c === ' ' || c === '\n') { frag.appendChild(document.createTextNode(c)); continue }
+          const sp = document.createElement('span');
+          sp.className = 'wc'; sp.textContent = c;
+          frag.appendChild(sp);
+        }
+        t.parentNode.replaceChild(frag, t);
+      }
+    }
+  }
+  function measure() {
+    items = []; bins = new Map();
+    for (const sp of document.querySelectorAll('.wc, .char')) {
+      if (sp.closest('.swap-stick')) continue;
+      const r = sp.getBoundingClientRect();
+      if (!r.width) continue;
+      const x = r.left + r.width / 2, y = r.top + r.height / 2 + scrollY;
+      const light = !!sp.closest('.light, .say, .say-outro');
+      const it = { sp, x, y, light };
+      items.push(it);
+      const b = Math.floor(y / BIN);
+      if (!bins.has(b)) bins.set(b, []);
+      bins.get(b).push(it);
+    }
+  }
+  function paint(mx, my) {
+    for (const it of lit) { it.sp.style.color = ''; it.sp.style.textShadow = '' }
+    lit = [];
+    if (mx < 0) return;
+    const dy = my + scrollY, b = Math.floor(dy / BIN), span = Math.ceil(R / BIN);
+    for (let k = b - span; k <= b + span; k++) {
+      const arr = bins.get(k); if (!arr) continue;
+      for (const it of arr) {
+        const d = Math.hypot(it.x - mx, it.y - dy);
+        if (d > R) continue;
+        const t = (1 - d / R) ** 2;
+        const f = it.light ? LFROM : FROM, o = it.light ? LTO : TO;
+        it.sp.style.color = 'rgb(' + f.map((v, j) => Math.round(v + (o[j] - v) * t)).join(',') + ')';
+        it.sp.style.textShadow = '0 0 ' + (16 * t).toFixed(1) + 'px rgba(168,84,54,' + (.3 * t).toFixed(3) + ')';
+        lit.push(it);
+      }
+    }
+  }
+  let px = -1e5, py = -1e5, wraf = 0;
+  addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    px = e.clientX; py = e.clientY;
+    if (!wraf) wraf = requestAnimationFrame(() => { wraf = 0; paint(px, py) });
+  }, { passive: true });
+  addEventListener('pointerleave', () => { px = -1e5; paint(-1e5, 0) });
+
+  /* 位置随布局变化才需要重算：滚动不改文档坐标，所以只在 resize 和揭示动画结束后重测 */
+  let mraf = 0;
+  const remeasure = () => { if (!mraf) mraf = requestAnimationFrame(() => { mraf = 0; measure() }) };
+  addEventListener('resize', remeasure);
+  split();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { split(); measure() });
+  setTimeout(() => { split(); measure() }, 1200);
+  setTimeout(measure, 3000);
+  measure();
 })();
 </script>
 </body>
