@@ -462,6 +462,27 @@ body::before{
   background-size:180px 180px}
 @media(prefers-reduced-motion:reduce){body::before{opacity:calc(var(--grain) * .7)}}
 
+
+/* ── 自定义光标（规范 7.2）────────────────────────
+   点跟得快、圈跟得慢，延迟感就来自这两个缓动系数的差。
+   difference 混合保证在墨底和纸底上都看得见，不必为两个世界各写一套。
+   触屏无悬停、reduced-motion 不要动效 —— 两种情况都整套关掉并还原系统光标。 */
+.cur-on,.cur-on *{cursor:none}
+#cursor-dot,#cursor-ring{position:fixed;left:0;top:0;border-radius:50%;
+  pointer-events:none;mix-blend-mode:difference;
+  transition:width .3s cubic-bezier(.16,1,.3,1),height .3s cubic-bezier(.16,1,.3,1),
+             border-color .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+#cursor-dot{width:6px;height:6px;background:var(--rust);z-index:10000}
+#cursor-ring{width:38px;height:38px;border:1.5px solid rgba(168,84,54,.75);z-index:9999}
+/* 悬停可交互元素：点变大、圈张开 —— 这是"这里能点"的唯一提示，不能省 */
+#cursor-dot.hovering{width:15px;height:15px;background:#C4694A}
+#cursor-ring.hovering{width:60px;height:60px;border-color:rgba(196,105,74,.6)}
+#trail-canvas{position:fixed;inset:0;pointer-events:none;z-index:9998}
+#ripple-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997}
+@media(hover:none),(prefers-reduced-motion:reduce){
+  #cursor-dot,#cursor-ring,#trail-canvas,#ripple-canvas{display:none}
+  .cur-on,.cur-on *{cursor:auto}
+}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -1543,6 +1564,86 @@ else {
   }, 14000);
 })();
 
+
+/* ── 自定义光标：点 + 延迟圆圈 + 拖尾 + 点击涟漪 ──
+   结构取自 ipreview.netlify.app，与规范 7.2 写的是同一套。
+   颜色换成本页唯一强调色（锈），不引入第二个强调色。 */
+(function () {
+  if (reduce || matchMedia('(hover:none)').matches) return;
+  const mk = (id, tag) => { const e = document.createElement(tag || 'div'); e.id = id; document.body.appendChild(e); return e };
+  const dot = mk('cursor-dot'), ring = mk('cursor-ring');
+  const trailCv = mk('trail-canvas', 'canvas'), rippleCv = mk('ripple-canvas', 'canvas');
+  const tc = trailCv.getContext('2d'), rc = rippleCv.getContext('2d');
+  document.body.classList.add('cur-on');
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  let mX = innerWidth / 2, mY = innerHeight / 2, dX = mX, dY = mY, rX = mX, rY = mY;
+  const trail = [], ripples = [];
+  let raf = 0;
+
+  function sizeAll() {
+    for (const c of [trailCv, rippleCv]) { c.width = innerWidth; c.height = innerHeight }
+  }
+  sizeAll();
+  addEventListener('resize', sizeAll);
+
+  const HOT = 'a,button,[role="button"],input,summary,.fig,figure,#wrap,.voice-master';
+  addEventListener('mousemove', e => {
+    mX = e.clientX; mY = e.clientY;
+    trail.push({ x: mX, y: mY, l: 1, s: 1.5 + Math.random() * 3 });
+    if (trail.length > 46) trail.shift();
+    kick();
+  }, { passive: true });
+  addEventListener('mouseover', e => {
+    if (e.target.closest && e.target.closest(HOT)) { dot.classList.add('hovering'); ring.classList.add('hovering') }
+  });
+  addEventListener('mouseout', e => {
+    if (e.target.closest && e.target.closest(HOT)) { dot.classList.remove('hovering'); ring.classList.remove('hovering') }
+  });
+  addEventListener('click', e => {
+    ripples.push({ x: e.clientX, y: e.clientY, r: 0, maxR: 80 + Math.random() * 60, life: 1 });
+    if (ripples.length > 10) ripples.shift();
+    kick();
+  }, { passive: true });
+
+  function frame() {
+    raf = 0;
+    dX = lerp(dX, mX, .25); dY = lerp(dY, mY, .25);
+    rX = lerp(rX, mX, .08); rY = lerp(rY, mY, .08);
+    dot.style.transform = 'translate(' + (dX - 3) + 'px,' + (dY - 3) + 'px)';
+    ring.style.transform = 'translate(' + (rX - 19) + 'px,' + (rY - 19) + 'px)';
+
+    tc.clearRect(0, 0, trailCv.width, trailCv.height);
+    for (let i = trail.length - 1; i >= 0; i--) {
+      const p = trail[i];
+      p.l -= .018;
+      if (p.l <= 0) { trail.splice(i, 1); continue }
+      tc.beginPath(); tc.arc(p.x, p.y, p.s * p.l, 0, 6.2832);
+      tc.fillStyle = 'rgba(168,84,54,' + (p.l * .4).toFixed(3) + ')'; tc.fill();
+    }
+
+    rc.clearRect(0, 0, rippleCv.width, rippleCv.height);
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const r = ripples[i];
+      r.r += (r.maxR - r.r) * .06; r.life -= .016;
+      if (r.life <= 0) { ripples.splice(i, 1); continue }
+      rc.beginPath(); rc.arc(r.x, r.y, r.r, 0, 6.2832);
+      rc.strokeStyle = 'rgba(168,84,54,' + (r.life * .5).toFixed(3) + ')';
+      rc.lineWidth = 1.5 * r.life; rc.stroke();
+      rc.beginPath(); rc.arc(r.x, r.y, r.r * .55, 0, 6.2832);
+      rc.strokeStyle = 'rgba(196,105,74,' + (r.life * .3).toFixed(3) + ')';
+      rc.lineWidth = 1 * r.life; rc.stroke();
+    }
+
+    // 静止且无残留时停掉循环，不做常驻 rAF 空转
+    const settled = Math.abs(dX - mX) < .2 && Math.abs(dY - mY) < .2
+                 && Math.abs(rX - mX) < .2 && Math.abs(rY - mY) < .2;
+    if (!settled || trail.length || ripples.length) raf = requestAnimationFrame(frame);
+  }
+  /* 一律 cancel + 重新申请：布尔门闩在 rAF 被节流时会永久卡死，这个坑踩过 */
+  function kick() { if (!raf) raf = requestAnimationFrame(frame) }
+  kick();
+})();
 </script>
 </body>
 </html>
