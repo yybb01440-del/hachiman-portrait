@@ -1587,6 +1587,57 @@ else {
   stick.addEventListener('pointerleave', () => { mx = my = -1e5; if (!tick) tick = requestAnimationFrame(paint) });
   addEventListener('resize', measure);
   requestAnimationFrame(() => { measure(); if (!base.length || !base[0][0]) measure() });
+
+  /* ── 自动走一遍 ──
+     这个升温效果本来只有移动鼠标才看得到，读者可能一路滚过去从没发现，
+     所以章节第一次进入视野时让它自己演示一次。
+
+     没有用"虚拟光标横扫"：paint() 的作用半径是 150px，而 swC 纵向跨 328px，
+     一条水平中线只能覆盖 95 个字里的 45 个（实测），剩下的扫不到。
+     改成沿阅读顺序传播的热浪 —— 覆盖率必然是 100%，
+     而且语义更好：温度顺着句子一路读下去。视觉公式与 paint() 完全一致。 */
+  let swept = false;
+  const FROM = [228,223,213], TO = [168,84,54];
+  function waveOne(list, pos, width) {
+    for (let i = 0; i < list.length; i++) {
+      const k0 = 1 - Math.abs(i - pos) / width;
+      if (k0 <= 0) { list[i].style.color = ''; list[i].style.transform = ''; list[i].style.textShadow = ''; continue }
+      const k = k0 * k0;
+      list[i].style.color = 'rgb(' + FROM.map((v, j) => Math.round(v + (TO[j] - v) * k)).join(',') + ')';
+      list[i].style.transform = 'translateY(' + (-6 * k).toFixed(2) + 'px) scale(' + (1 + .035 * k).toFixed(3) + ')';
+      list[i].style.textShadow = '0 0 ' + (18 * k).toFixed(1) + 'px rgba(168,84,54,' + (.34 * k).toFixed(3) + ')';
+    }
+  }
+  function autoSweep() {
+    if (swept || reduce) return;
+    swept = true;
+    // 三层各自独立走一遍：任何时刻只有一层可见，这样可见的那层一定能看到完整的一道
+    const groups = [swA, swB, swC].filter(Boolean).map(l => [...l.querySelectorAll('.ch')]).filter(g => g.length);
+    if (!groups.length) return;
+    const DUR = 2600, WIDTH = 11, t0 = performance.now();
+    (function step(now) {
+      const p = Math.min(1, (now - t0) / DUR);
+      const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;   // 两端慢、中间快
+      for (const g of groups) waveOne(g, -WIDTH + e * (g.length + WIDTH * 2), WIDTH);
+      if (p < 1) requestAnimationFrame(step);
+      else for (const g of groups) waveOne(g, -1e5, WIDTH);             // 走完清干净，交还给鼠标
+    })(performance.now());
+  }
+  /* 触发用两条腿：IntersectionObserver 在后台标签页里完全不触发，
+     单靠它的话，从后台打开的读者永远看不到这次演示。滚动检查是兜底。 */
+  function maybeSweep() {
+    if (swept) return;
+    const r = stick.getBoundingClientRect();
+    if (r.top < innerHeight * .7 && r.bottom > innerHeight * .3) setTimeout(autoSweep, 380);
+  }
+  if (window.IntersectionObserver) {
+    const swObs = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { setTimeout(autoSweep, 380); swObs.disconnect() }
+    }), { threshold: .35 });
+    swObs.observe(stick);
+  }
+  addEventListener('scroll', maybeSweep, { passive: true });
+  setTimeout(maybeSweep, 900);
 })();
 
 /* ── 显示异常自检 ──
