@@ -474,11 +474,11 @@ body::before{
   transition:width .3s cubic-bezier(.16,1,.3,1),height .3s cubic-bezier(.16,1,.3,1),
              border-color .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1),
              opacity .3s cubic-bezier(.16,1,.3,1)}
-#cursor-dot{width:6px;height:6px;background:var(--rust);z-index:10000}
-#cursor-ring{width:38px;height:38px;border:1.5px solid rgba(168,84,54,.75);z-index:9999}
+#cursor-dot{width:6px;height:6px;background:rgba(168,84,54,.62);z-index:10000}
+#cursor-ring{width:38px;height:38px;border:1.5px solid rgba(168,84,54,.42);z-index:9999}
 /* 悬停可交互元素：点变大、圈张开 —— 这是"这里能点"的唯一提示，不能省 */
-#cursor-dot.hovering{width:15px;height:15px;background:#C4694A}
-#cursor-ring.hovering{width:60px;height:60px;border-color:rgba(196,105,74,.6)}
+#cursor-dot.hovering{width:15px;height:15px;background:rgba(196,105,74,.8)}
+#cursor-ring.hovering{width:60px;height:60px;border-color:rgba(196,105,74,.45)}
 #trail-canvas{position:fixed;inset:0;pointer-events:none;z-index:9998;transition:opacity .25s ease}
 #ripple-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997;transition:opacity .25s ease}
 body.cur-ready #cursor-dot,body.cur-ready #cursor-ring{opacity:1}
@@ -495,12 +495,15 @@ body.cur-off .prologue,body.cur-off .prologue *{cursor:auto}
    关键不是"淡入"，是每个字带 rotateX 从下方翻起来落位 ——
    字有了厚度和落点，才读得出重量。stagger 30ms/字，与原站一致。
    只用在 h2：正文逐字会同时跑几百个过渡，且长段落逐字反而干扰阅读。 */
-h2.reveal{filter:none;transform:none}          /* 容器不再位移模糊，交给逐字 */
-h2 .char{display:inline-block;white-space:pre;opacity:0;
+/* 后半段的大字不是 h2：06/07/08 用 h3，08 的落点是 .say-land，09 是 .end p。
+   逐字要覆盖到这些，否则前半段有重量、后半段没有，节奏会断。 */
+h2.reveal,h3.reveal,.say-land.reveal,.end p.reveal:not(.coda):not(.jp){filter:none;transform:none}
+h2 .char,h3 .char,.say-land .char,.end p:not(.coda):not(.jp) .char{
+  display:inline-block;white-space:pre;opacity:0;
   transform:translateY(.6em) rotateX(-40deg);
   transition:opacity .5s cubic-bezier(.22,.61,.36,1),
              transform .5s cubic-bezier(.22,.61,.36,1)}
-h2.in .char{opacity:1;transform:none}
+h2.in .char,h3.in .char,.say-land.in .char,.end p.in:not(.coda):not(.jp) .char{opacity:1;transform:none}
 
 /* ── 关键词悬停升温 ──
    页面里 <b> 和 <mark> 本来就是被强调的词，直接让它们可悬停。
@@ -510,7 +513,7 @@ b,mark{transition:color .32s ease,text-shadow .32s ease}
 b:hover,mark:hover{color:var(--rust);
   text-shadow:0 0 20px rgba(168,84,54,.4),0 0 42px rgba(168,84,54,.18)}
 @media(prefers-reduced-motion:reduce){
-  h2 .char{opacity:1;transform:none;transition:none}
+  h2 .char,h3 .char,.say-land .char,.end p .char{opacity:1;transform:none;transition:none}
 }
 </style>
 </head>
@@ -1650,7 +1653,7 @@ else {
       p.l -= .018;
       if (p.l <= 0) { trail.splice(i, 1); continue }
       tc.beginPath(); tc.arc(p.x, p.y, p.s * p.l, 0, 6.2832);
-      tc.fillStyle = 'rgba(168,84,54,' + (p.l * .4).toFixed(3) + ')'; tc.fill();
+      tc.fillStyle = 'rgba(168,84,54,' + (p.l * .22).toFixed(3) + ')'; tc.fill();
     }
 
     rc.clearRect(0, 0, rippleCv.width, rippleCv.height);
@@ -1659,10 +1662,10 @@ else {
       r.r += (r.maxR - r.r) * .06; r.life -= .016;
       if (r.life <= 0) { ripples.splice(i, 1); continue }
       rc.beginPath(); rc.arc(r.x, r.y, r.r, 0, 6.2832);
-      rc.strokeStyle = 'rgba(168,84,54,' + (r.life * .5).toFixed(3) + ')';
+      rc.strokeStyle = 'rgba(168,84,54,' + (r.life * .3).toFixed(3) + ')';
       rc.lineWidth = 1.5 * r.life; rc.stroke();
       rc.beginPath(); rc.arc(r.x, r.y, r.r * .55, 0, 6.2832);
-      rc.strokeStyle = 'rgba(196,105,74,' + (r.life * .3).toFixed(3) + ')';
+      rc.strokeStyle = 'rgba(196,105,74,' + (r.life * .18).toFixed(3) + ')';
       rc.lineWidth = 1 * r.life; rc.stroke();
     }
 
@@ -1678,7 +1681,7 @@ else {
    在 reveal 观察器之前就把 h2 拆好，这样 .in 一到就能逐字落位。 */
 (function () {
   if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
-  document.querySelectorAll('h2').forEach(el => {
+  document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp)').forEach(el => {
     if (el.dataset.split) return;
     el.dataset.split = '1';
     // 只拆纯文本节点，保留 <br> 和 <span class="r"> 这类结构
