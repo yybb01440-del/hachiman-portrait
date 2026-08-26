@@ -570,33 +570,28 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 .wc{transition:color .3s ease-out,text-shadow .3s ease-out}
 
 /* ── 「真物」发光 ──
-   前三版都失败，原因是同一个：纸底给不了光。
-     ① 锈色光晕 → 和绿字色相不同，成了背后一团橙雾
-     ② 同色暗绿光晕 → 深色扩散在浅纸上只能是糊
-     ③ 近白 halation → 干净了，但纸和白差不到 20 级，几乎看不见
-   真正的解法不是调光晕，是给它一块能衬出光的底 ——
-   这个词自带一小片黑夜。语义上也对：全篇他都够不着的东西，
-   在纸色世界里仍然属于另一个世界。 */
-.tw{position:relative;display:inline-block;
-  padding:.04em .3em .1em;margin:0 .06em;
-  color:#F2E9DA;background:#171A17;border-radius:2px;
-  font-style:italic;
-  animation:twGlow 6s ease-in-out infinite}
+   用回规范 5.5 + 附录那套配方（之前给所有大字标题用过，效果是对的，
+   问题只在范围：句句都在呼吸就等于没有呼吸）。现在全篇只给这一个词。
+   层数与半径完全照附录：4 / 14 / 32 / 65 / 120px，透明度递减，呼吸 7s。 */
 @keyframes twGlow{
   0%,100%{text-shadow:
-    0 0 4px  rgba(242,233,218,.35),
-    0 0 14px rgba(242,233,218,.22),
-    0 0 34px rgba(242,233,218,.12);
-    box-shadow:0 0 18px rgba(23,26,23,.18)}
+    0 0 4px   rgba(255,247,232,.55),
+    0 0 14px  rgba(255,244,224,.38),
+    0 0 32px  rgba(255,242,218,.24),
+    0 0 65px  rgba(255,240,214,.14),
+    0 0 120px rgba(255,238,210,.08)}
   50%{text-shadow:
-    0 0 4px  rgba(255,247,232,.75),
-    0 0 16px rgba(255,247,232,.5),
-    0 0 44px rgba(255,247,232,.28);
-    box-shadow:0 0 30px rgba(23,26,23,.3)}
+    0 0 4px   rgba(255,251,242,.9),
+    0 0 14px  rgba(255,249,236,.68),
+    0 0 32px  rgba(255,247,230,.45),
+    0 0 65px  rgba(255,245,226,.28),
+    0 0 120px rgba(255,243,222,.16)}
 }
+.tw{font-style:italic;animation:twGlow 7s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){
   .tw{animation:none;
-    text-shadow:0 0 5px rgba(242,233,218,.5),0 0 20px rgba(242,233,218,.28)}
+    text-shadow:0 0 6px rgba(255,247,232,.7),0 0 22px rgba(255,244,224,.4),0 0 60px rgba(255,242,218,.2)}
+}
 }
 }
 }
