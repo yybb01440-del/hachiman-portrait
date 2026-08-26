@@ -1897,7 +1897,10 @@ else {
   if (reduce || matchMedia('(hover:none)').matches) return;
   const SEL = 'h2, h3, .land, .say-land, .manifesto p, .col p, .longform p,' +
               '.say-piece p, .self-step p, .genuine-beat p, .selfstudy-land, .end p';
-  const R = 140, BIN = 120;
+  /* R 是升温半径。140 时一次点亮 39 个字，像一片光斑；
+     收到 46 之后只咬住光标底下那一两个字 —— 这才叫聚焦。
+     BIN 不跟着缩：桶太小会让桶数暴涨，查找反而更慢。 */
+  const R = 46, BIN = 120;
   const FROM = [228,223,213], TO = [168,84,54];
   const LFROM = [30,28,25],   LTO = [168,84,54];     // 纸色世界的正文是近黑，起点不同
   let items = [], bins = new Map(), lit = [];
@@ -1949,7 +1952,7 @@ else {
       for (const it of arr) {
         const d = Math.hypot(it.x - mx, it.y - dy);
         if (d > R) continue;
-        const t = (1 - d / R) ** 2;
+        const t = (1 - d / R) ** 1.6;   // 比平方略缓，保证中心那个字够实
         const f = it.light ? LFROM : FROM, o = it.light ? LTO : TO;
         it.sp.style.color = 'rgb(' + f.map((v, j) => Math.round(v + (o[j] - v) * t)).join(',') + ')';
         it.sp.style.textShadow = '0 0 ' + (16 * t).toFixed(1) + 'px rgba(168,84,54,' + (.3 * t).toFixed(3) + ')';
