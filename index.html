@@ -576,6 +576,34 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 @media(prefers-reduced-motion:reduce){
   .tw{animation:none;text-shadow:0 0 16px rgba(168,84,54,.36)}
 }
+
+/* ── 展示级标题光晕（规范 5.5 + 附录配方）──
+   附录写得很死，逐条照做：
+     · 光晕 4–5 层，半径 4 / 14 / 32 / 65 / 120px，透明度递减
+     · 颜色取正文字色（骨白），不取强调色 —— "暖白光是月光，强调色是警示"
+     · 呼吸周期 4–8s，这里取 7s（情绪词落「重」端，2.2 表要 6–10s）
+   只给暗世界：纸色底上叠亮光晕只会糊成一团，那半边不需要月光。 */
+@keyframes titleBreathe{
+  0%,100%{text-shadow:
+    0 0 4px rgba(228,223,213,.20),
+    0 0 14px rgba(228,223,213,.13),
+    0 0 32px rgba(228,223,213,.08),
+    0 0 65px rgba(228,223,213,.05),
+    0 0 120px rgba(228,223,213,.03)}
+  50%{text-shadow:
+    0 0 4px rgba(228,223,213,.34),
+    0 0 14px rgba(228,223,213,.24),
+    0 0 32px rgba(228,223,213,.16),
+    0 0 65px rgba(228,223,213,.10),
+    0 0 120px rgba(228,223,213,.06)}
+}
+.dark h2,.hero h1,.swap-layer,.manifesto p{
+  animation:titleBreathe 7s ease-in-out infinite;
+  -webkit-text-stroke:.4px rgba(228,223,213,.22)}
+@media(prefers-reduced-motion:reduce){
+  .dark h2,.hero h1,.swap-layer,.manifesto p{animation:none;
+    text-shadow:0 0 14px rgba(228,223,213,.16),0 0 46px rgba(228,223,213,.08)}
+}
 </style>
 </head>
 <body class="is-intro-idle">
