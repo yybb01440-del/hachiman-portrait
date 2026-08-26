@@ -209,15 +209,20 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 /* ── 06 自爆：同一个动作，被连续改写为解决／控制／暴露 ── */
 .selfstudy{padding:0 32px;background:var(--paper)}
 .selfstudy-grid{display:grid;grid-template-columns:minmax(280px,.72fr) minmax(0,1fr);gap:clamp(54px,8vw,120px);max-width:1120px;margin:0 auto}
-.selfstudy-anchor{position:sticky;top:20svh;height:max-content;padding:0 0 90px}
+/* 左栏内容高约 560px（判断词 136 + 图 270 + 各种间距），
+   原来 top:20svh 在 660 高的视口里会顶到 692px —— 底部被切掉。
+   上移并收掉多余的下内边距，整栏才能完整看见。 */
+.selfstudy-anchor{position:sticky;top:clamp(28px,5svh,80px);height:max-content;padding:0 0 20px}
 .selfstudy-anchor .eyeb{margin-bottom:clamp(54px,8vh,86px)}
 .selfstudy-label{font-family:var(--sans);font-size:13px;letter-spacing:.2em;color:var(--faint);margin-bottom:18px}
-.selfstudy-words{position:relative;height:1.08em;font-family:var(--serif);font-weight:900;font-size:clamp(64px,10vw,136px);line-height:1;letter-spacing:-.02em}
+.selfstudy-words{position:relative;height:1.08em;font-family:var(--serif);font-weight:900;
+  /* 上限同时受视口高度约束：短屏自动收小，高屏保持 136px 不变 */
+  font-size:clamp(52px,min(10vw,16svh),136px);line-height:1;letter-spacing:-.02em}
 .selfstudy-word{position:absolute;inset:0 auto auto 0;opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1),filter .65s ease-out}
 .selfstudy-word.is-current{opacity:1;transform:none;filter:none;color:var(--hachiman)}
 .selfstudy-count{margin-top:30px;font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:var(--faint)}
 .selfstudy-count b{font-weight:400;color:var(--hachiman)}
-.selfstudy-still{max-width:430px;margin-top:44px}
+.selfstudy-still{max-width:min(396px,42svh);margin-top:clamp(18px,3svh,32px)}
 .selfstudy-still .still-in{position:relative;overflow:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--paper-2)}
 .selfstudy-still img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:center;filter:saturate(.68) contrast(1.02) brightness(.96)}
 .selfstudy-still .still-in::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 60%,rgba(30,28,25,.38))}
@@ -558,6 +563,19 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
    放到正文上会让整页抖动重排。span 用 inline 而非 inline-block，
    中文断行规则也就完全不变。 */
 .wc{transition:color .3s ease-out,text-shadow .3s ease-out}
+
+/* ── 「真物」发亮 ──
+   全篇的题眼。只加光晕、不改字色：这一行里锈色已经点在别处，
+   再给它上色就是第二个强调点（规范 4.3：全页只点一处）。
+   呼吸周期 6s —— 情绪词落「重」端，2.2 表要求 6-10s。 */
+@keyframes twGlow{
+  0%,100%{text-shadow:0 0 10px rgba(168,84,54,.22),0 0 26px rgba(168,84,54,.09)}
+  50%    {text-shadow:0 0 20px rgba(168,84,54,.52),0 0 50px rgba(168,84,54,.22)}
+}
+.tw{animation:twGlow 6s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){
+  .tw{animation:none;text-shadow:0 0 16px rgba(168,84,54,.36)}
+}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -899,7 +917,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
     <article class="say-piece reveal">
       <span class="num">02 / 想要</span>
       <h3>一个没练习过“想要”的人。</h3>
-      <p>第一次承认自己有愿望，当然会说得很难看。所以我理解他为什么直到最后，才喊出“我想要真物”。</p>
+      <p>第一次承认自己有愿望，当然会说得很难看。所以我理解他为什么直到最后，才喊出“我想要<em class="tw">真物</em>”。</p>
     </article>
     <article class="say-piece reveal">
       <span class="num">03 / 停止猜测</span>
@@ -911,13 +929,13 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
   </div>
 </section>
 <div class="say-outro light">
-  <p class="say-land reveal">他喊的是“我想要真物”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
+  <p class="say-land reveal">他喊的是“我想要<em class="tw">真物</em>”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
   <audio id="genuineVoice" preload="none" src="./assets/hachiman-genuine.m4a"></audio>
 </div>
 
 
 <section class="light end" data-ch="09" data-name="还喜欢">
-  <p class="reveal">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要真物。</span></p>
+  <p class="reveal">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要<em class="tw">真物</em>。</span></p>
   <p class="coda reveal">高中时，我喜欢他，因为我觉得我们是同一种人。<br>我们都站在人群外面，傲慢地活在自己的世界里。<br><span class="dim">那份傲慢是真的。它后面的孤独也是真的。</span></p>
   <p class="jp reveal">やはり俺の青春ラブコメはまちがっている。</p>
 </section>
@@ -1213,8 +1231,10 @@ let raf = 0;
 /* ── 标题景深：像 04 那样越过焦点就放大模糊 ──
    焦点定在视口 42% 高度；标题在焦点下方时保持原样（交给逐字揭示），
    越过焦点向上时按距离放大 + 模糊 + 淡出。清掉内联样式即可交还给 CSS。 */
-const heads = [...document.querySelectorAll('h2, h3, .say-land, .end p.reveal:not(.coda):not(.jp), .manifesto p')]
-  .filter(el => !el.closest('[data-ch="06"]'));   // 06 有自己的接管机制，不叠景深
+const heads = [...document.querySelectorAll('h2, h3, .say-land, .manifesto p')]
+  .filter(el => !el.closest('[data-ch="06"]'));
+/* 06 有自己的三步接管机制，09 是收尾 —— 两章都不叠景深。
+   收尾那句要稳稳落在那里，滚过去还被放大模糊掉，等于把结论说了一半又收回。 */
 function driveHeads() {
   if (reduce) return;
   const focal = innerHeight * .42;
