@@ -595,24 +595,6 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 }
 
 
-/* ── 收尾那句的墨色带 ──
-   轮廓光要成立必须有暗底：纸色底上（237,231,220）任何光晕都会被冲平。
-   所以不改两世界结构，只给这一句一条通栏的夜 ——
-   它说的本来就是他始终没够着的东西，属于另一个世界。 */
-.end .glowband{
-  /* max-width 要显式解开：.end p 的 max-width:min(19em,88vw) 会压住 width:100vw */
-  position:relative;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);
-  /* 上下溶进纸里，不留硬边：整块纯色会读成"贴了个黑方块"，
-     渐变才读成"这一段暗下去了"。中间必须够暗，否则轮廓光又没底可衬。 */
-  background:linear-gradient(180deg,
-    rgba(15,16,15,0) 0%, rgba(15,16,15,.55) 12%,
-    rgba(15,16,15,1) 30%, rgba(15,16,15,1) 70%,
-    rgba(15,16,15,.55) 88%, rgba(15,16,15,0) 100%);
-  color:#E4DFD5;
-  padding:clamp(72px,12vh,140px) 32px;
-  box-sizing:border-box}
-/* 带内的绿要提亮：暗苔绿 #506B57 压在墨底上几乎看不见 */
-.end .glowband .r{color:#8FAE97}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -972,7 +954,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 
 
 <section class="light end" data-ch="09" data-name="还喜欢">
-  <p class="reveal glowband">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要<em class="tw">真物</em>。</span></p>
+  <p class="reveal">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要<em class="tw">真物</em>。</span></p>
   <p class="coda reveal">高中时我喜欢他，因为觉得我们是同一种人——<br>都站在外面，傲慢地活在自己的世界里。<br><span class="dim">那份傲慢底下究竟是骨气，还是受伤后的不敢开口，我不知道。</span><br>但我还是喜欢他。</p>
   <p class="jp reveal">やはり俺の青春ラブコメはまちがっている。</p>
 </section>
