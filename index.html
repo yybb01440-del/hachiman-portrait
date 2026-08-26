@@ -250,7 +250,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 .genuine-frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(.48) sepia(.12) contrast(.92) brightness(.94)}
 .genuine-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(237,231,220,.04) 52%,rgba(30,28,25,.66));pointer-events:none}
 .genuine-frame .cap{position:absolute;left:22px;bottom:19px;z-index:2;font-family:var(--sans);font-size:12px;letter-spacing:.18em;color:#EEE8DE}
-.genuine-beat{--beat-base:-50%;position:absolute;right:0;top:50%;width:39%;opacity:0;transform:translateY(calc(var(--beat-base) + 36px));will-change:opacity,transform,filter}
+.genuine-beat{--beat-base:-50%;position:absolute;right:0;top:50%;width:39%;max-height:calc(100% - 76px);overflow:hidden;opacity:0;transform:translateY(calc(var(--beat-base) + 36px));will-change:opacity,transform,filter}
 .genuine-beat .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.24em;color:var(--rust);margin-bottom:20px}
 /* 字号同时受视口高度约束，短屏自动收；三行标题是这一屏最高的一块 */
 .genuine-beat h3{font-family:var(--serif);font-weight:900;
@@ -262,8 +262,10 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 .character-voice{margin:28px 0 0;padding:21px 0 0;border-top:1px solid rgba(143,90,39,.34)}
 .character-voice>p{font-family:var(--serif);font-weight:900;font-size:clamp(20px,1.55vw,24px);line-height:1.65;letter-spacing:-.018em;color:var(--yui);max-width:23em}
 .jp-line{display:block;margin-top:8px;font-family:var(--mincho);font-size:12px;line-height:1.55;letter-spacing:.02em;color:var(--faint)}
-.genuine-cast{position:absolute;right:0;top:0;width:39%;display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:13px;letter-spacing:.16em}
-.genuine-note{position:absolute;right:0;bottom:0;width:39%;font-family:var(--sans);font-size:12px;letter-spacing:.16em;color:var(--faint)}
+/* cast 与 note 贴住上下边缘，把中间整段让给 beat；
+   beat 的高度随内容变化，固定留白挡不住所有情况。 */
+.genuine-cast{position:absolute;right:0;top:-6px;width:39%;display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:12px;letter-spacing:.16em}
+.genuine-note{position:absolute;right:0;bottom:-6px;width:39%;font-family:var(--sans);font-size:12px;letter-spacing:.16em;color:var(--faint)}
 
 /* ── 08 开口：前一段在动，这一段停下来让句子自己承担重量 ── */
 /* 08 开口：竖向滚动驱动卡片横移（与 07 真物同一套 sticky 模式）。
@@ -763,10 +765,10 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
         <div class="fact"><dt>转折</dt><dd>被平冢静带进侍奉部</dd></div>
       </dl>
       <p class="lead reveal">大老师是这部作品的主角。成绩不差，脑子很快，也不是完全交不到朋友；他只是很早就认定，很多热闹靠的是气氛、顺从和谁都不去戳破的谎话。</p>
-      <p class="reveal">于是他先把自己放到人群外面。与其等着被关系推开，不如提前声明自己不需要它。这让他显得刻薄，也让他拥有一种过分敏锐的观察力。</p>
-      <p class="reveal">进入侍奉部后，他和雪之下雪乃、由比滨结衣一起接下同学们的委托。大老师解决问题时，常会先看见所有人想藏起来的那一面，再把最难看的后果揽到自己身上。</p>
-      <p class="confession reveal">这不是单纯的聪明，也不是值得歌颂的牺牲。他把受伤当作判断，把自我否定当成安全距离；故事真正要处理的，是他能不能承认自己也想被好好对待。</p>
-      <p class="land reveal">他看得很清楚。<br>只是总把自己排除在答案之外。</p>
+      <p class="reveal">于是他先把自己放到人群外面。与其等着被关系推开，不如提前声明自己不需要它。这让他显得刻薄，也让他比别人多看见一些东西。</p>
+      <p class="reveal">进入侍奉部后，他和雪之下雪乃、由比滨结衣一起接下同学们的委托。大老师解决问题时，常会先看见所有人想藏起来的那一面，再自己去做那个被讨厌的人。</p>
+      <p class="confession reveal">这里面有聪明，也有牺牲，但都不太对劲。他习惯先让自己受一次伤，再拿这个当结论；离得远一点，他才觉得安全。他真正要面对的，是自己能不能承认，他也想被好好对待。</p>
+      <p class="land reveal">他看得很清楚，只是从来不把自己算进答案里。</p>
     </div>
   </div>
 </section>
@@ -784,7 +786,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
       <p class="lead reveal">大老师说话总像站在教室最后一排。青春、友情、善意，别人拿来相信的东西，他会先翻到背面，看一眼它究竟遮住了什么。</p>
       <p class="reveal">他不相信“大家好好相处”就能解决问题。有人维持体面，就一定有人吞下难堪；有人扮演温柔，就可能只是不想承担说真话的后果。他的判断很难听，可最麻烦的是，往往说中了。</p>
       <p class="confession reveal">高中时候的我看这个，卧槽这也太帅了吧。他的那些话叛逆、特立独行，又像从一个更高的位置俯视人群。那时候我觉得，这才叫人间清醒。</p>
-      <p class="land reveal">如果他说错了，事情反而简单。<br>难办的是他说对了。</p>
+      <p class="land reveal">那时候我大概也希望，他是错的。</p>
     </div>
   </div>
 </section>
@@ -801,7 +803,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
       <h2 class="reveal">我和他像的，<br>不只是装出来的高冷。</h2>
       <p class="lead confession reveal">我身上也有一点“嘉豪”。高中时的我确实会把孤独穿得很帅：故作松弛，故作忧郁，嘴上说根本不在乎有没有人看见，心里又渴望自己被人看见。</p>
       <p class="confession reveal">但这解释不了全部。那时候的我也是真的自视甚高。不是“没人理我，所以假装不需要”的体面说法。我确实傲慢地看不起周围所有人，觉得他们的热闹无聊、规则虚伪、判断浅薄。我活在自己的世界里，而且并不觉得那有什么需要被纠正。</p>
-      <p class="reveal">大老师吸引我的地方也在这里。他不是一个等着被谁拯救的可怜人。他的孤僻里有受伤，也有骄傲；他真的认为很多集体共识经不起推敲，也真的不愿意为了合群把自己削平。</p>
+      <p class="reveal">大老师吸引我的地方也在这里。他从来没在等谁来拯救他。他的孤僻里有受伤，也有骄傲；他真的认为很多集体共识经不起推敲，也真的不愿意为了合群把自己削平。</p>
       <p class="turn reveal">所以我不会再把我们所有的孤独都解释成防御。<b>有些时候，我们就是宁愿站在外面，也不愿意和他们一样。</b></p>
       <p class="land reveal">孤傲的灵魂无需羁旅之地。<br>至少当时的我，真心这么相信。</p>
     </div>
@@ -833,7 +835,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
     <canvas id="cv"></canvas>
     <div class="meter" id="meter" role="progressbar" aria-label="卸甲进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">卸下 <b id="pct">0</b>%</div>
   </div>
-  <p class="after" id="peelAfter">盔甲下面，不是软弱。<br>是他不肯交出去的真心。</p>
+  <p class="after" id="peelAfter">盔甲下面，<br>是他不肯交出去的真心。</p>
 </section>
 
 <section class="crack">
@@ -841,7 +843,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
     <div class="crack-card" id="crackCard" aria-hidden="true"></div>
     <div class="crack-say" id="crackSay">
       <span class="lab">盔 甲 之 下</span>
-      <p>不是突然变得合群。<br>只是终于承认，自己也有想要的东西。</p>
+      <p>他还是那个不合群的人。<br>只是终于承认，自己也有想要的东西。</p>
     </div>
   </div>
 </section>
@@ -913,7 +915,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
       <article class="genuine-beat tone-yui" data-genuine-beat="1">
         <span class="num">02 / 唯一</span>
         <h3><span class="c-yui">如果你对所有人都一样，</span><br>那我算什么。</h3>
-        <p>我想要的不是对所有人都一样的温柔，而是“只有我这里不一样”。可靠近以后，我也会敏感、回避、先把人推开——我在意的是，自己有没有被区别地看见。</p>
+        <p><span class="c-hachiman">八幡</span>要的是“只有我这里不一样”。可<span class="c-yui">结衣</span>对谁都温柔，这份温柔落到他身上，他就分不清算不算数。而真靠近了，他又会敏感、回避、先把人推开——他在意的是，自己有没有被区别地看见。</p>
         <blockquote class="character-voice">
           <p>“多考虑一下别人的感受啊。<br>为什么你明明什么都懂，却偏偏不懂这个呢？”</p>
           <small class="jp-line" lang="ja">人の気持ち、もっと考えてよ。なんでいろんなことが分かるのに、それが分からないの？</small>
@@ -923,9 +925,9 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
       <article class="genuine-beat tone-hachiman" data-genuine-beat="2">
         <span class="num">03 / 真物</span>
         <h3><span class="c-hachiman">他想要一段</span><br>不用猜的关系。</h3>
-        <p>“真物”不是一句高级台词。他只是受不了所有人都很体贴、都不说真话、都假装关系没有坏。他想要的不是正确关系，而是一段不用反复猜测的关系。</p>
+        <p>“真物”听起来像句漂亮话，其实没那么玄。他只是受不了所有人都很体贴、都不说真话、都假装关系没有坏。他要的就是一段不用反复猜测的关系。</p>
       </article>
-      <p class="genuine-note">向下滚动 · 三个人的关系会在同一张纸面里逐层显影</p>
+      <p class="genuine-note">向下滚动 · 三个人的关系会在同一张纸上慢慢显出来</p>
     </div>
   </div>
 </section>
