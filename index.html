@@ -240,7 +240,10 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 
 /* ── 07 真物：三个人的关系在同一张纸面里依次接管 ── */
 .genuine-story{height:300svh;background:var(--paper)}
-.genuine-stick{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;padding:72px 32px 42px}
+/* 内边距收紧：beat 内容高达 549px，而 cast 与 note 之间原来只留 465px，
+   上下各压掉 40 余像素的文字。padding 让位 + 标题加高度上限，两头一起腾空间。 */
+.genuine-stick{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;
+  padding:clamp(28px,4.4svh,64px) 32px clamp(22px,3.4svh,40px)}
 .genuine-grid{position:relative;width:min(1160px,100%);height:min(76svh,760px)}
 .genuine-visual{position:absolute;inset:0 auto 0 0;width:54%;overflow:hidden;background:var(--paper-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .genuine-frame{position:absolute;inset:0;opacity:0;transform:scale(.96);filter:blur(7px);will-change:opacity,transform,filter}
@@ -249,14 +252,16 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 .genuine-frame .cap{position:absolute;left:22px;bottom:19px;z-index:2;font-family:var(--sans);font-size:12px;letter-spacing:.18em;color:#EEE8DE}
 .genuine-beat{--beat-base:-50%;position:absolute;right:0;top:50%;width:39%;opacity:0;transform:translateY(calc(var(--beat-base) + 36px));will-change:opacity,transform,filter}
 .genuine-beat .num{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.24em;color:var(--rust);margin-bottom:20px}
-.genuine-beat h3{font-family:var(--serif);font-weight:900;font-size:clamp(38px,4.8vw,66px);line-height:1.12;letter-spacing:-.04em;margin-bottom:28px}
-.genuine-beat p{font-size:clamp(18px,1.35vw,20px);line-height:2;color:var(--dim);max-width:25em}
+/* 字号同时受视口高度约束，短屏自动收；三行标题是这一屏最高的一块 */
+.genuine-beat h3{font-family:var(--serif);font-weight:900;
+  font-size:clamp(28px,min(4.8vw,6.6svh),58px);line-height:1.1;letter-spacing:-.04em;margin-bottom:clamp(14px,2.4svh,24px)}
+.genuine-beat p{font-size:clamp(16px,1.25vw,19px);line-height:1.88;color:var(--dim);max-width:25em}
 .genuine-beat.tone-yukino .num{color:var(--yukino)}
 .genuine-beat.tone-yui .num{color:var(--yui)}
 .genuine-beat.tone-hachiman .num{color:var(--hachiman)}
 .character-voice{margin:28px 0 0;padding:21px 0 0;border-top:1px solid rgba(143,90,39,.34)}
 .character-voice>p{font-family:var(--serif);font-weight:900;font-size:clamp(20px,1.55vw,24px);line-height:1.65;letter-spacing:-.018em;color:var(--yui);max-width:23em}
-.jp-line{display:block;margin-top:12px;font-family:var(--mincho);font-size:12px;line-height:1.65;letter-spacing:.02em;color:var(--faint)}
+.jp-line{display:block;margin-top:8px;font-family:var(--mincho);font-size:12px;line-height:1.55;letter-spacing:.02em;color:var(--faint)}
 .genuine-cast{position:absolute;right:0;top:0;width:39%;display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:13px;letter-spacing:.16em}
 .genuine-note{position:absolute;right:0;bottom:0;width:39%;font-family:var(--sans);font-size:12px;letter-spacing:.16em;color:var(--faint)}
 
@@ -565,25 +570,34 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 .wc{transition:color .3s ease-out,text-shadow .3s ease-out}
 
 /* ── 「真物」发光 ──
-   走了两次弯路，记在这里：
-     ① 锈色光晕 —— 和绿字色相不同，读成"背后贴了团橙雾"。
-     ② 同色（暗苔绿）光晕 —— 深色打在浅底上只能是糊，是阴影不是光。
-   纸底上唯一能读成发光的做法：光晕要比纸更亮。
-   纸是 #EDE7DC，光晕用近白的暖光，笔画周围的纸被"照亮"，
-   这是印刷里的 halation。半径必须小 —— 大了就是一团白雾。 */
+   前三版都失败，原因是同一个：纸底给不了光。
+     ① 锈色光晕 → 和绿字色相不同，成了背后一团橙雾
+     ② 同色暗绿光晕 → 深色扩散在浅纸上只能是糊
+     ③ 近白 halation → 干净了，但纸和白差不到 20 级，几乎看不见
+   真正的解法不是调光晕，是给它一块能衬出光的底 ——
+   这个词自带一小片黑夜。语义上也对：全篇他都够不着的东西，
+   在纸色世界里仍然属于另一个世界。 */
+.tw{position:relative;display:inline-block;
+  padding:.04em .3em .1em;margin:0 .06em;
+  color:#F2E9DA;background:#171A17;border-radius:2px;
+  font-style:italic;
+  animation:twGlow 6s ease-in-out infinite}
 @keyframes twGlow{
   0%,100%{text-shadow:
-    0 0 2px  rgba(255,252,246,.85),
-    0 0 6px  rgba(255,250,242,.60),
-    0 0 15px rgba(255,248,238,.34)}
+    0 0 4px  rgba(242,233,218,.35),
+    0 0 14px rgba(242,233,218,.22),
+    0 0 34px rgba(242,233,218,.12);
+    box-shadow:0 0 18px rgba(23,26,23,.18)}
   50%{text-shadow:
-    0 0 2px  rgba(255,253,248,1),
-    0 0 8px  rgba(255,251,244,.85),
-    0 0 22px rgba(255,249,240,.55)}
+    0 0 4px  rgba(255,247,232,.75),
+    0 0 16px rgba(255,247,232,.5),
+    0 0 44px rgba(255,247,232,.28);
+    box-shadow:0 0 30px rgba(23,26,23,.3)}
 }
-.tw{animation:twGlow 6s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){
-  .tw{animation:none;text-shadow:0 0 3px rgba(255,252,246,.9),0 0 12px rgba(255,250,242,.5)}
+  .tw{animation:none;
+    text-shadow:0 0 5px rgba(242,233,218,.5),0 0 20px rgba(242,233,218,.28)}
+}
 }
 }
 }
