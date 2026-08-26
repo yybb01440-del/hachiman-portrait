@@ -564,17 +564,31 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
    中文断行规则也就完全不变。 */
 .wc{transition:color .3s ease-out,text-shadow .3s ease-out}
 
-/* ── 「真物」发亮 ──
-   全篇的题眼。只加光晕、不改字色：这一行里锈色已经点在别处，
-   再给它上色就是第二个强调点（规范 4.3：全页只点一处）。
-   呼吸周期 6s —— 情绪词落「重」端，2.2 表要求 6-10s。 */
+/* ── 「真物」发光 ──
+   之前用锈色做光晕，而这行字是暗苔绿 #506B57 —— 两个色相打架，
+   结果读起来是"背后贴了一团橙雾"，不是字在发光。
+   改成辐射字自己的颜色：光晕与字同色相、层层外扩，
+   光才像是从笔画里透出来的，而不是外面照过来的。
+   层数与半径比例沿用规范 5.5 的配方，但收紧一档 ——
+   纸色底比墨底亮，同样的半径在这里会糊成一片。 */
 @keyframes twGlow{
-  0%,100%{text-shadow:0 0 10px rgba(168,84,54,.22),0 0 26px rgba(168,84,54,.09)}
-  50%    {text-shadow:0 0 20px rgba(168,84,54,.52),0 0 50px rgba(168,84,54,.22)}
+  0%,100%{text-shadow:
+    0 0 3px  rgba(80,107,87,.34),
+    0 0 9px  rgba(80,107,87,.22),
+    0 0 20px rgba(80,107,87,.13),
+    0 0 42px rgba(80,107,87,.07),
+    0 0 76px rgba(80,107,87,.04)}
+  50%{text-shadow:
+    0 0 3px  rgba(80,107,87,.55),
+    0 0 9px  rgba(80,107,87,.38),
+    0 0 20px rgba(80,107,87,.24),
+    0 0 42px rgba(80,107,87,.14),
+    0 0 76px rgba(80,107,87,.08)}
 }
 .tw{animation:twGlow 6s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){
-  .tw{animation:none;text-shadow:0 0 16px rgba(168,84,54,.36)}
+  .tw{animation:none;text-shadow:0 0 4px rgba(80,107,87,.4),0 0 16px rgba(80,107,87,.2),0 0 44px rgba(80,107,87,.1)}
+}
 }
 
 }
