@@ -577,32 +577,6 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
   .tw{animation:none;text-shadow:0 0 16px rgba(168,84,54,.36)}
 }
 
-/* ── 展示级标题光晕（规范 5.5 + 附录配方）──
-   附录写得很死，逐条照做：
-     · 光晕 4–5 层，半径 4 / 14 / 32 / 65 / 120px，透明度递减
-     · 颜色取正文字色（骨白），不取强调色 —— "暖白光是月光，强调色是警示"
-     · 呼吸周期 4–8s，这里取 7s（情绪词落「重」端，2.2 表要 6–10s）
-   只给暗世界：纸色底上叠亮光晕只会糊成一团，那半边不需要月光。 */
-@keyframes titleBreathe{
-  0%,100%{text-shadow:
-    0 0 4px rgba(228,223,213,.20),
-    0 0 14px rgba(228,223,213,.13),
-    0 0 32px rgba(228,223,213,.08),
-    0 0 65px rgba(228,223,213,.05),
-    0 0 120px rgba(228,223,213,.03)}
-  50%{text-shadow:
-    0 0 4px rgba(228,223,213,.34),
-    0 0 14px rgba(228,223,213,.24),
-    0 0 32px rgba(228,223,213,.16),
-    0 0 65px rgba(228,223,213,.10),
-    0 0 120px rgba(228,223,213,.06)}
-}
-.dark h2,.hero h1,.swap-layer,.manifesto p{
-  animation:titleBreathe 7s ease-in-out infinite;
-  -webkit-text-stroke:.4px rgba(228,223,213,.22)}
-@media(prefers-reduced-motion:reduce){
-  .dark h2,.hero h1,.swap-layer,.manifesto p{animation:none;
-    text-shadow:0 0 14px rgba(228,223,213,.16),0 0 46px rgba(228,223,213,.08)}
 }
 </style>
 </head>
@@ -945,7 +919,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
     <article class="say-piece reveal">
       <span class="num">02 / 想要</span>
       <h3>一个没练习过“想要”的人。</h3>
-      <p>第一次承认自己有愿望，当然会说得很难看。所以我理解他为什么直到最后，才喊出“我想要<em class="tw">真物</em>”。</p>
+      <p>第一次承认自己有愿望，当然会说得很难看。所以我理解他为什么直到最后，才喊出“我想要真物”。</p>
     </article>
     <article class="say-piece reveal">
       <span class="num">03 / 停止猜测</span>
@@ -957,7 +931,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
   </div>
 </section>
 <div class="say-outro light">
-  <p class="say-land reveal">他喊的是“我想要<em class="tw">真物</em>”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
+  <p class="say-land reveal">他喊的是“我想要真物”。<br>我听见的是：<span class="r">我不想再装作自己什么都不需要了。</span></p>
   <audio id="genuineVoice" preload="none" src="./assets/hachiman-genuine.m4a"></audio>
 </div>
 
@@ -2005,7 +1979,6 @@ else {
     for (let k = b - span; k <= b + span; k++) {
       const arr = bins.get(k); if (!arr) continue;
       for (const it of arr) {
-        if (waving.size && it.sp.parentElement && waving.has(it.sp.closest(SEL))) continue;
         const d = Math.hypot(it.x - mx, it.y - dy);
         if (d > R) continue;
         const t = (1 - d / R) ** 1.6;   // 比平方略缓，保证中心那个字够实
@@ -2016,59 +1989,6 @@ else {
       }
     }
   }
-  /* ── 出现时自动走一遍 ──
-     这个升温本来只有移动鼠标才看得到，读者可能一路滚过去从没发现。
-     所以每个大字元素第一次进入视野时，让一道热浪顺着阅读顺序自己走一遍。
-     沿字符次序传播、不按空间距离算 —— 覆盖率必然 100%，多行也不会漏。 */
-  const waving = new Set();
-  function waveEl(el) {
-    if (el.dataset.waved) return;
-    el.dataset.waved = '1';
-    const list = [...el.querySelectorAll('.wc, .char')];
-    if (!list.length) return;
-    const light = !!el.closest('.light, .say, .say-outro');
-    const f = light ? LFROM : FROM, o = light ? LTO : TO;
-    const W = 7, DUR = 1400, t0 = performance.now();
-    waving.add(el);
-    /* 兜底：热浪靠 rAF 推进，后台标签页里 rAF 不触发，
-       没有这条的话 waving 永远清不掉，该元素的悬停会被永久跳过。 */
-    setTimeout(() => {
-      if (!waving.has(el)) return;
-      waving.delete(el);
-      for (const sp of list) { sp.style.color = ''; sp.style.textShadow = '' }
-    }, DUR + 700);
-    (function step(now) {
-      const q = Math.min(1, (now - t0) / DUR);
-      const e2 = q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
-      const pos = -W + e2 * (list.length + W * 2);
-      for (let i = 0; i < list.length; i++) {
-        const k0 = 1 - Math.abs(i - pos) / W;
-        if (k0 <= 0) { list[i].style.color = ''; list[i].style.textShadow = ''; continue }
-        const t = k0 * k0;
-        list[i].style.color = 'rgb(' + f.map((v, j) => Math.round(v + (o[j] - v) * t)).join(',') + ')';
-        list[i].style.textShadow = '0 0 ' + (16 * t).toFixed(1) + 'px rgba(168,84,54,' + (.3 * t).toFixed(3) + ')';
-      }
-      if (q < 1) requestAnimationFrame(step);
-      else {
-        for (const sp of list) { sp.style.color = ''; sp.style.textShadow = '' }
-        waving.delete(el);
-      }
-    })(performance.now());
-  }
-  function armWave() {
-    for (const el of document.querySelectorAll(SEL)) {
-      if (el.dataset.waved || el.closest('.swap-stick')) continue;
-      const r = el.getBoundingClientRect();
-      if (r.top < innerHeight * .82 && r.bottom > innerHeight * .12) setTimeout(() => waveEl(el), 820);
-    }
-  }
-  let wLast = 0;
-  addEventListener('scroll', () => {
-    const t = Date.now(); if (t - wLast < 140) return; wLast = t; armWave();
-  }, { passive: true });
-  setInterval(armWave, 700);
-  setTimeout(armWave, 1300);
-
   let px = -1e5, py = -1e5, wraf = 0;
   addEventListener('pointermove', e => {
     if (e.pointerType === 'touch') return;
