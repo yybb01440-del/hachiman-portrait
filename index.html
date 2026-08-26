@@ -602,8 +602,14 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 .end .glowband{
   /* max-width 要显式解开：.end p 的 max-width:min(19em,88vw) 会压住 width:100vw */
   position:relative;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);
-  background:var(--ink);color:#E4DFD5;
-  padding:clamp(52px,8.5vh,104px) 32px;
+  /* 上下溶进纸里，不留硬边：整块纯色会读成"贴了个黑方块"，
+     渐变才读成"这一段暗下去了"。中间必须够暗，否则轮廓光又没底可衬。 */
+  background:linear-gradient(180deg,
+    rgba(15,16,15,0) 0%, rgba(15,16,15,.55) 12%,
+    rgba(15,16,15,1) 30%, rgba(15,16,15,1) 70%,
+    rgba(15,16,15,.55) 88%, rgba(15,16,15,0) 100%);
+  color:#E4DFD5;
+  padding:clamp(72px,12vh,140px) 32px;
   box-sizing:border-box}
 /* 带内的绿要提亮：暗苔绿 #506B57 压在墨底上几乎看不见 */
 .end .glowband .r{color:#8FAE97}
