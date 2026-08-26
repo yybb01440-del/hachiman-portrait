@@ -278,7 +278,10 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
 .say-hint{max-width:min(1400px,92vw);width:100%;margin:0 auto;font-family:var(--sans);
   font-size:12px;letter-spacing:.2em;color:var(--faint)}
 .say-hint b{font-weight:400;color:var(--rust);font-variant-numeric:tabular-nums}
-.say-outro{background:var(--paper-2);padding:0 32px 150px}
+/* 上内边距必须给：.say-land 的 margin-top 会从这里塌陷出去，
+   把整块推下并露出 body 的墨色底 —— 08→09 之间那条黑带就是这么来的。 */
+.say-outro{background:var(--paper-2);padding:110px 32px 150px}
+.say-outro .say-land{margin-top:0}
 /* 减少动态时不做横移，退回可手动横滚的容器 */
 @media(prefers-reduced-motion:reduce){
   .say{height:auto;padding:140px 0 150px}
@@ -397,7 +400,7 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   .say-stick{padding:72px 22px 44px;gap:26px}
   .say-viewport{height:clamp(280px,52svh,360px)}
   .say-piece{padding:28px 6px 32px 0}
-  .say-outro{padding:0 22px 110px}
+  .say-outro{padding:78px 22px 110px}
   .say-land{margin-top:78px}
 }
 @media(prefers-reduced-motion:reduce){
