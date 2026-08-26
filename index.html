@@ -434,7 +434,6 @@ h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.6vw,60px);
   .genuine-beat{position:relative;inset:auto;width:auto;opacity:1!important;transform:none!important;filter:none!important}
 }
 
-}
 
 /* ── Loader ────────────────────────────────────────
    首屏要等 1.4MB 序幕视频 + 0.57MB 字体，慢网下会空等。
@@ -592,12 +591,20 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
   .tw{animation:none;
     text-shadow:0 0 6px rgba(255,247,232,.7),0 0 22px rgba(255,244,224,.4),0 0 60px rgba(255,242,218,.2)}
 }
-}
-}
-}
-}
 
-}
+
+/* ── 收尾那句的墨色带 ──
+   轮廓光要成立必须有暗底：纸色底上（237,231,220）任何光晕都会被冲平。
+   所以不改两世界结构，只给这一句一条通栏的夜 ——
+   它说的本来就是他始终没够着的东西，属于另一个世界。 */
+.end .glowband{
+  /* max-width 要显式解开：.end p 的 max-width:min(19em,88vw) 会压住 width:100vw */
+  position:relative;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);
+  background:var(--ink);color:#E4DFD5;
+  padding:clamp(52px,8.5vh,104px) 32px;
+  box-sizing:border-box}
+/* 带内的绿要提亮：暗苔绿 #506B57 压在墨底上几乎看不见 */
+.end .glowband .r{color:#8FAE97}
 </style>
 </head>
 <body class="is-intro-idle">
@@ -957,7 +964,7 @@ h2,h3,.say-land,.end p.reveal:not(.coda):not(.jp){transform-origin:left center;w
 
 
 <section class="light end" data-ch="09" data-name="还喜欢">
-  <p class="reveal">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要<em class="tw">真物</em>。</span></p>
+  <p class="reveal glowband">他傲慢、刻薄、拧巴，<br>也经常把事情做得很难看。<br><span class="r">可他仍然想要<em class="tw">真物</em>。</span></p>
   <p class="coda reveal">高中时，我喜欢他，因为我觉得我们是同一种人。<br>我们都站在人群外面，傲慢地活在自己的世界里。<br><span class="dim">那份傲慢是真的。它后面的孤独也是真的。</span></p>
   <p class="jp reveal">やはり俺の青春ラブコメはまちがっている。</p>
 </section>
