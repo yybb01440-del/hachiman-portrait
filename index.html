@@ -1905,7 +1905,9 @@ else {
   /* R 是升温半径。140 时一次点亮 39 个字，像一片光斑；
      收到 46 之后只咬住光标底下那一两个字 —— 这才叫聚焦。
      BIN 不跟着缩：桶太小会让桶数暴涨，查找反而更慢。 */
-  const R = 46, BIN = 120;
+  /* R 是升温半径。46 是按正文字号定的；现在只作用于 24–116px 的展示字，
+     那个半径连一个字都盖不满，所以放到 120（04 原版对巨字用的是 150）。 */
+  const R = 120, BIN = 120;
   const FROM = [228,223,213], TO = [168,84,54];
   const LFROM = [30,28,25],   LTO = [168,84,54];     // 纸色世界的正文是近黑，起点不同
   let items = [], bins = new Map(), lit = [];
@@ -1955,6 +1957,7 @@ else {
     for (let k = b - span; k <= b + span; k++) {
       const arr = bins.get(k); if (!arr) continue;
       for (const it of arr) {
+        if (waving.size && it.sp.parentElement && waving.has(it.sp.closest(SEL))) continue;
         const d = Math.hypot(it.x - mx, it.y - dy);
         if (d > R) continue;
         const t = (1 - d / R) ** 1.6;   // 比平方略缓，保证中心那个字够实
@@ -1965,6 +1968,59 @@ else {
       }
     }
   }
+  /* ── 出现时自动走一遍 ──
+     这个升温本来只有移动鼠标才看得到，读者可能一路滚过去从没发现。
+     所以每个大字元素第一次进入视野时，让一道热浪顺着阅读顺序自己走一遍。
+     沿字符次序传播、不按空间距离算 —— 覆盖率必然 100%，多行也不会漏。 */
+  const waving = new Set();
+  function waveEl(el) {
+    if (el.dataset.waved) return;
+    el.dataset.waved = '1';
+    const list = [...el.querySelectorAll('.wc, .char')];
+    if (!list.length) return;
+    const light = !!el.closest('.light, .say, .say-outro');
+    const f = light ? LFROM : FROM, o = light ? LTO : TO;
+    const W = 7, DUR = 1400, t0 = performance.now();
+    waving.add(el);
+    /* 兜底：热浪靠 rAF 推进，后台标签页里 rAF 不触发，
+       没有这条的话 waving 永远清不掉，该元素的悬停会被永久跳过。 */
+    setTimeout(() => {
+      if (!waving.has(el)) return;
+      waving.delete(el);
+      for (const sp of list) { sp.style.color = ''; sp.style.textShadow = '' }
+    }, DUR + 700);
+    (function step(now) {
+      const q = Math.min(1, (now - t0) / DUR);
+      const e2 = q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+      const pos = -W + e2 * (list.length + W * 2);
+      for (let i = 0; i < list.length; i++) {
+        const k0 = 1 - Math.abs(i - pos) / W;
+        if (k0 <= 0) { list[i].style.color = ''; list[i].style.textShadow = ''; continue }
+        const t = k0 * k0;
+        list[i].style.color = 'rgb(' + f.map((v, j) => Math.round(v + (o[j] - v) * t)).join(',') + ')';
+        list[i].style.textShadow = '0 0 ' + (16 * t).toFixed(1) + 'px rgba(168,84,54,' + (.3 * t).toFixed(3) + ')';
+      }
+      if (q < 1) requestAnimationFrame(step);
+      else {
+        for (const sp of list) { sp.style.color = ''; sp.style.textShadow = '' }
+        waving.delete(el);
+      }
+    })(performance.now());
+  }
+  function armWave() {
+    for (const el of document.querySelectorAll(SEL)) {
+      if (el.dataset.waved || el.closest('.swap-stick')) continue;
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * .82 && r.bottom > innerHeight * .12) setTimeout(() => waveEl(el), 820);
+    }
+  }
+  let wLast = 0;
+  addEventListener('scroll', () => {
+    const t = Date.now(); if (t - wLast < 140) return; wLast = t; armWave();
+  }, { passive: true });
+  setInterval(armWave, 700);
+  setTimeout(armWave, 1300);
+
   let px = -1e5, py = -1e5, wraf = 0;
   addEventListener('pointermove', e => {
     if (e.pointerType === 'touch') return;
